@@ -38,7 +38,7 @@ npm run dev
 The dev server runs at `http://localhost:4321/ms-devops-agent-skills/`. The `base` path matches the GitHub Pages URL — override it locally with `SITE_BASE=/` in `.env`.
 
 ```bash
-npm run validate    # schema-check every submission
+npm run validate    # schema-check every catalog entry
 npm run build       # full build (validate + import + astro build)
 npm run test        # unit tests
 ```
@@ -49,10 +49,10 @@ npm run test        # unit tests
 npm run new-skill -- --slug my-awesome-skill --name "My Awesome Skill" --category ci
 ```
 
-That scaffolds `submissions/my-awesome-skill/` with the files below. Edit them, run `npm run validate`, open a PR.
+That scaffolds `catalog/my-awesome-skill/` with the files below. Edit them, run `npm run validate`, open a PR.
 
 ```
-submissions/<slug>/
+catalog/<slug>/
 ├── metadata.json           # catalog entry (name, description, category, tags, tools, level, ...)
 ├── SKILL.md                # required — the portable skill (name + description frontmatter, body)
 ├── trainer.md              # optional lesson plan

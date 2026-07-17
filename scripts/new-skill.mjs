@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * npm run new-skill -- --slug my-skill --name "My Skill" --category ci
- * Writes a submissions/<slug>/ folder from templates.
+ * Writes a catalog/<slug>/ folder from templates.
  */
 import { mkdir, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
@@ -24,8 +24,8 @@ if (!slug || !name) {
   process.exit(1);
 }
 
-const dir = join(ROOT, 'submissions', slug);
-if (existsSync(dir)) { console.error(`✖ submissions/${slug} already exists`); process.exit(1); }
+const dir = join(ROOT, 'catalog', slug);
+if (existsSync(dir)) { console.error(`✖ catalog/${slug} already exists`); process.exit(1); }
 await mkdir(dir, { recursive: true });
 
 const metadata = {
@@ -90,5 +90,5 @@ await writeFile(join(dir, 'metadata.json'), JSON.stringify(metadata, null, 2) + 
 await writeFile(join(dir, 'SKILL.md'), skillMd, 'utf8');
 await writeFile(join(dir, 'trainer.md'), trainerMd, 'utf8');
 
-console.log(`✔ scaffolded submissions/${slug}`);
+console.log(`✔ scaffolded catalog/${slug}`);
 console.log('Next: edit the files, then run `npm run validate` and `npm run dev`.');

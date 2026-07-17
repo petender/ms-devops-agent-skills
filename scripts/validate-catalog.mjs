@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Validate every submission folder.
+ * Validate every catalog entry folder.
  *
  * Checks:
  *   - metadata.json parses and matches the shared schema
@@ -20,7 +20,7 @@ import { parseFrontmatter } from './lib/frontmatter.mjs';
 import { validateMetadata, validateTrainer } from './lib/schema.mjs';
 
 const ROOT = resolve(fileURLToPath(new URL('.', import.meta.url)), '..');
-const SUB_DIR = join(ROOT, 'submissions');
+const CATALOG_DIR = join(ROOT, 'catalog');
 
 const errors = [];
 const warnings = [];
@@ -29,7 +29,7 @@ function fail(where, msg) { errors.push(`✖ ${where}: ${msg}`); }
 function warn(where, msg) { warnings.push(`⚠ ${where}: ${msg}`); }
 
 async function validateOne(slug) {
-  const dir = join(SUB_DIR, slug);
+  const dir = join(CATALOG_DIR, slug);
   const metaPath = join(dir, 'metadata.json');
   const skillPath = join(dir, 'SKILL.md');
   const trainerPath = join(dir, 'trainer.md');
@@ -61,8 +61,8 @@ async function validateOne(slug) {
 }
 
 async function main() {
-  if (!existsSync(SUB_DIR)) return console.log('No submissions/ folder — nothing to validate.');
-  const entries = (await readdir(SUB_DIR, { withFileTypes: true })).filter((e) => e.isDirectory());
+  if (!existsSync(CATALOG_DIR)) return console.log('No catalog/ folder — nothing to validate.');
+  const entries = (await readdir(CATALOG_DIR, { withFileTypes: true })).filter((e) => e.isDirectory());
   await Promise.all(entries.map((e) => validateOne(e.name)));
 
   for (const w of warnings) console.warn(w);
@@ -72,7 +72,7 @@ async function main() {
     console.error(`\n${errors.length} validation error${errors.length === 1 ? '' : 's'}.`);
     process.exit(1);
   }
-  console.log(`✔ ${entries.length} submission${entries.length === 1 ? '' : 's'} validated.${warnings.length ? ` (${warnings.length} warning${warnings.length === 1 ? '' : 's'})` : ''}`);
+  console.log(`✔ ${entries.length} catalog entr${entries.length === 1 ? 'y' : 'ies'} validated.${warnings.length ? ` (${warnings.length} warning${warnings.length === 1 ? '' : 's'})` : ''}`);
 }
 
 main().catch((e) => { console.error(e); process.exit(1); });

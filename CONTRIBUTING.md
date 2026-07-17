@@ -9,17 +9,17 @@ git clone https://github.com/petender/ms-devops-agent-skills
 cd ms-devops-agent-skills
 npm install
 npm run new-skill -- --slug my-skill --name "My Skill" --category ci
-# ... edit submissions/my-skill/ ...
+# ... edit catalog/my-skill/ ...
 npm run validate
 npm run dev
 ```
 
 Then open a PR. CI runs `npm run validate && npm test && npm run build`.
 
-## Submission anatomy
+## Catalog entry anatomy
 
 ```
-submissions/<slug>/
+catalog/<slug>/
 ├── metadata.json           # required — catalog entry
 ├── SKILL.md                # required — the portable skill (Agent Skills open standard)
 ├── trainer.md              # recommended — lesson plan

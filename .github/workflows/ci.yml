@@ -17,7 +17,7 @@ jobs:
           node-version: '20'
           cache: 'npm'
       - run: npm ci
-      - name: Validate submissions
+      - name: Validate catalog
         run: npm run validate
       - name: Run tests
         run: npm test

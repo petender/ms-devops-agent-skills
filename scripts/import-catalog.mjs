@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * Convert every submissions/<slug>/ into a content-collection entry at
+ * Convert every catalog/<slug>/ into a content-collection entry at
  * src/content/skills/<slug>.md, plus emit optional .zip bundles into
- * public/bundles/<slug>.zip when the submission ships scripts/assets/references.
+ * public/bundles/<slug>.zip when the catalog entry ships scripts/assets/references.
  *
  * Runs as a prebuild step; skips work if src/content/skills already exists
  * with a newer mtime than the source folder.
@@ -15,7 +15,7 @@ import { parseFrontmatter } from './lib/frontmatter.mjs';
 import JSZip from 'jszip';
 
 const ROOT = resolve(fileURLToPath(new URL('.', import.meta.url)), '..');
-const SUB_DIR = join(ROOT, 'submissions');
+const CATALOG_DIR = join(ROOT, 'catalog');
 const OUT_CONTENT = join(ROOT, 'src', 'content', 'skills');
 const OUT_BUNDLES = join(ROOT, 'public', 'bundles');
 
@@ -56,7 +56,7 @@ function yamlScalar(v) {
 }
 
 async function importOne(slug) {
-  const dir = join(SUB_DIR, slug);
+  const dir = join(CATALOG_DIR, slug);
   const meta = JSON.parse(await readFile(join(dir, 'metadata.json'), 'utf8'));
   meta.slug = slug;
 
@@ -143,12 +143,12 @@ async function importOne(slug) {
 }
 
 async function main() {
-  if (!existsSync(SUB_DIR)) { console.log('No submissions/ folder — nothing to import.'); return; }
+  if (!existsSync(CATALOG_DIR)) { console.log('No catalog/ folder — nothing to import.'); return; }
   // Clean.
   if (existsSync(OUT_CONTENT)) await rm(OUT_CONTENT, { recursive: true, force: true });
   if (existsSync(OUT_BUNDLES)) await rm(OUT_BUNDLES, { recursive: true, force: true });
 
-  const entries = (await readdir(SUB_DIR, { withFileTypes: true })).filter((e) => e.isDirectory());
+  const entries = (await readdir(CATALOG_DIR, { withFileTypes: true })).filter((e) => e.isDirectory());
   for (const e of entries) {
     try { await importOne(e.name); }
     catch (err) { console.error(`✖ ${e.name}: ${err.message}`); process.exitCode = 1; }
