@@ -85,27 +85,89 @@ function escapeSvg(s: string): string {
     .replace(/"/g, '&quot;');
 }
 
-/** Greedy word-wrap into at most `maxLines` lines of ≤ `maxChars` each. */
-function wrapTitle(title: string, maxChars: number, maxLines: number): string[] {
-  const words = title.split(/\s+/).filter(Boolean);
-  const lines: string[] = [];
-  let current = '';
-  for (const w of words) {
-    const candidate = current ? `${current} ${w}` : w;
-    if (candidate.length <= maxChars) {
-      current = candidate;
-    } else {
-      if (current) lines.push(current);
-      current = w;
+/**
+ * Partition `words` into exactly `k` consecutive groups (joined by spaces),
+ * minimizing the longest group's character length. Enumerates all cuts —
+ * fine for the small word counts we see in skill titles (≤ ~8).
+ */
+function balancedSplit(words: string[], k: number): string[] {
+  const n = words.length;
+  const lens = words.map((w) => w.length);
+  const groupLen = (i: number, j: number) => {
+    let s = 0;
+    for (let x = i; x < j; x++) s += lens[x];
+    return s + (j - i - 1); // spaces between words
+  };
+  let best: number[] = [];
+  let bestMax = Infinity;
+  const enumerate = (start: number, remaining: number, acc: number[]) => {
+    if (remaining === 0) {
+      const cuts = [0, ...acc, n];
+      let maxLen = 0;
+      for (let x = 0; x < cuts.length - 1; x++) {
+        maxLen = Math.max(maxLen, groupLen(cuts[x], cuts[x + 1]));
+      }
+      if (maxLen < bestMax) {
+        bestMax = maxLen;
+        best = acc.slice();
+      }
+      return;
+    }
+    const maxStart = n - remaining;
+    for (let i = start; i <= maxStart; i++) {
+      acc.push(i);
+      enumerate(i + 1, remaining - 1, acc);
+      acc.pop();
+    }
+  };
+  enumerate(1, Math.max(0, k - 1), []);
+  const cuts = [0, ...best, n];
+  const out: string[] = [];
+  for (let i = 0; i < cuts.length - 1; i++) {
+    out.push(words.slice(cuts[i], cuts[i + 1]).join(' '));
+  }
+  return out;
+}
+
+/**
+ * Width-aware title layout. Tries 1 → 2 → 3 lines and picks the smallest
+ * line count whose balanced split still fits the available width at a
+ * readable font size. Fewer lines are preferred so short titles stay big
+ * and long titles wrap gracefully.
+ */
+function layoutTitle(
+  title: string,
+  availWidth: number,
+  availHeight: number,
+  maxLines = 3,
+): { lines: string[]; fontSize: number } {
+  const words = title.trim().split(/\s+/).filter(Boolean);
+  if (!words.length) return { lines: [], fontSize: 0 };
+
+  const MAX_FONT = 64;
+  const MIN_ACCEPTABLE = 44; // switch to more lines only when this can't be met
+  const MIN_FLOOR = 30; // absolute lower bound if nothing fits
+  // Approx average char width for a bold sans-serif at 1em.
+  const CHAR_RATIO = 0.56;
+
+  let fallbackSplit: string[] = [words.join(' ')];
+  let fallbackFont = 0;
+
+  for (let n = 1; n <= Math.min(maxLines, words.length); n++) {
+    const split = balancedSplit(words, n);
+    const longest = Math.max(...split.map((s) => s.length));
+    const fromWidth = availWidth / (longest * CHAR_RATIO);
+    const fromHeight = availHeight / (n * 1.15);
+    const font = Math.min(MAX_FONT, Math.floor(fromWidth), Math.floor(fromHeight));
+    if (font >= MIN_ACCEPTABLE) {
+      return { lines: split, fontSize: font };
+    }
+    if (font > fallbackFont) {
+      fallbackFont = font;
+      fallbackSplit = split;
     }
   }
-  if (current) lines.push(current);
-  if (lines.length > maxLines) {
-    const kept = lines.slice(0, maxLines);
-    kept[kept.length - 1] = `${kept[kept.length - 1].replace(/[\s\-–—:]+$/, '')}…`;
-    return kept;
-  }
-  return lines;
+  return { lines: fallbackSplit, fontSize: Math.max(MIN_FLOOR, fallbackFont) };
 }
 
 export interface CoverOptions {
@@ -150,9 +212,8 @@ export function renderCover({ slug, category, width = 640, height = 360, title }
   // legacy slug-initials watermark.
   let foreground: string;
   if (title && title.trim()) {
-    const lines = wrapTitle(title.trim(), 16, 3);
-    // Font size scales down as line count grows so a 3-line title still fits.
-    const fontSize = lines.length >= 3 ? 44 : lines.length === 2 ? 54 : 64;
+    // Reserve room: 40px horizontal padding, 100px vertical for badge + bottom margin.
+    const { lines, fontSize } = layoutTitle(title, width - 80, height - 100);
     const lineH = Math.round(fontSize * 1.08);
     const startY = height - 44 - (lines.length - 1) * lineH;
     const tspans = lines
