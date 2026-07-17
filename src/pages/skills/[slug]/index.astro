@@ -56,8 +56,9 @@ const metadata = {
 
     <div class="grid gap-8 lg:grid-cols-[2fr_1fr]">
       <div>
+        <h1 class="sr-only">{d.name}</h1>
         <div class="mb-4 overflow-hidden rounded-2xl border border-ink-200 dark:border-ink-800">
-          <SkillCover slug={slug} category={d.category} class="aspect-[16/4] w-full" />
+          <SkillCover slug={slug} category={d.category} title={d.name} width={640} height={240} class="aspect-[16/6] w-full" />
         </div>
         <div class="mb-3 flex flex-wrap items-center gap-2 text-xs">
           <span class:list={["badge", CATEGORY_BADGE[d.category]]}>{CATEGORY_LABELS[d.category]}</span>
@@ -68,7 +69,6 @@ const metadata = {
           <span class="text-ink-500 dark:text-ink-400">·</span>
           <span class="text-ink-700 dark:text-ink-300">v{d.version}</span>
         </div>
-        <h1 class="text-3xl font-bold tracking-tight text-ink-900 dark:text-ink-100 sm:text-4xl">{d.name}</h1>
         <p class="mt-3 text-lg text-ink-600 dark:text-ink-300">{d.description}</p>
         <div class="mt-4 flex flex-wrap gap-1.5">
           {d.tags.map((tag) => (
