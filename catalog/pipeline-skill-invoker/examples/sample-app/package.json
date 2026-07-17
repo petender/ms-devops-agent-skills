@@ -1,0 +1,23 @@
+{
+  "name": "devops-skills-hello-world",
+  "version": "1.0.0",
+  "description": "Sample Hello World app for testing pipeline-skill-invoker",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "keywords": [
+    "devops",
+    "docker",
+    "hello-world"
+  ],
+  "author": "DevOps Agent Skills",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
