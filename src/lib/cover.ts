@@ -130,44 +130,35 @@ function balancedSplit(words: string[], k: number): string[] {
 }
 
 /**
- * Width-aware title layout. Tries 1 → 2 → 3 lines and picks the smallest
- * line count whose balanced split still fits the available width at a
- * readable font size. Fewer lines are preferred so short titles stay big
- * and long titles wrap gracefully.
+ * Fixed-size title layout. All cards render titles at the same font so the
+ * catalog grid reads as a single visual rhythm. We only vary the line count
+ * (1 → 2 → 3), picking the smallest count whose balanced split fits the
+ * available width at that fixed size.
  */
 function layoutTitle(
   title: string,
   availWidth: number,
-  availHeight: number,
+  _availHeight: number,
   maxLines = 3,
 ): { lines: string[]; fontSize: number } {
   const words = title.trim().split(/\s+/).filter(Boolean);
   if (!words.length) return { lines: [], fontSize: 0 };
 
-  const MAX_FONT = 64;
-  const MIN_ACCEPTABLE = 44; // switch to more lines only when this can't be met
-  const MIN_FLOOR = 30; // absolute lower bound if nothing fits
+  const FONT_SIZE = 44;
   // Approx average char width for a bold sans-serif at 1em.
   const CHAR_RATIO = 0.56;
-
-  let fallbackSplit: string[] = [words.join(' ')];
-  let fallbackFont = 0;
+  const maxChars = Math.floor(availWidth / (FONT_SIZE * CHAR_RATIO));
 
   for (let n = 1; n <= Math.min(maxLines, words.length); n++) {
     const split = balancedSplit(words, n);
     const longest = Math.max(...split.map((s) => s.length));
-    const fromWidth = availWidth / (longest * CHAR_RATIO);
-    const fromHeight = availHeight / (n * 1.15);
-    const font = Math.min(MAX_FONT, Math.floor(fromWidth), Math.floor(fromHeight));
-    if (font >= MIN_ACCEPTABLE) {
-      return { lines: split, fontSize: font };
-    }
-    if (font > fallbackFont) {
-      fallbackFont = font;
-      fallbackSplit = split;
+    if (longest <= maxChars) {
+      return { lines: split, fontSize: FONT_SIZE };
     }
   }
-  return { lines: fallbackSplit, fontSize: Math.max(MIN_FLOOR, fallbackFont) };
+  // Even at maxLines the longest line overflows — use the maxLines split
+  // anyway; SVG will let it bleed slightly rather than truncate content.
+  return { lines: balancedSplit(words, Math.min(maxLines, words.length)), fontSize: FONT_SIZE };
 }
 
 export interface CoverOptions {

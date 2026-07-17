@@ -40,7 +40,6 @@ const orphans = skills.filter((s) => !collections.some((c) => c.skills.includes(
                 <p class="mt-0.5 truncate text-sm text-ink-600 dark:text-ink-400">{s.data.description}</p>
               </div>
               <span class="text-xs text-ink-500 dark:text-ink-400">{s.data.estimatedMinutes} min</span>
-              {s.data.hasTrainerNotes && <span class="badge bg-indigo-500/10 text-indigo-700 dark:text-indigo-300">plan</span>}
             </li>
           ))}
         </ol>
