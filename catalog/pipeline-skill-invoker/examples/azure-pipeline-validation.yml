@@ -50,6 +50,9 @@ stages:
       displayName: 'Find Modified Pipelines'
     
     - pwsh: |
+        # KEY DESIGN: Reuse existing SKILL.md without modification
+        # The same ado-pipeline-author/SKILL.md used locally works here
+        
         $pipelineFile = "$(pipelineFile)"
         
         if ([string]::IsNullOrEmpty($pipelineFile) -or -not (Test-Path $pipelineFile)) {
@@ -59,23 +62,12 @@ stages:
         
         Write-Host "Validating pipeline: $pipelineFile"
         
-        # Read the skill content
-        $skillPath = "catalog/ado-pipeline-author/SKILL.md"
-        if (-not (Test-Path $skillPath)) {
-          Write-Error "Skill file not found: $skillPath"
-          exit 1
-        }
-        
-        $skillContent = Get-Content $skillPath -Raw
+        # Read the pipeline content to analyze
         $pipelineContent = Get-Content $pipelineFile -Raw
         
-        # Construct the prompt
-        $prompt = @"
-You are an Azure DevOps pipeline expert.
-
-$skillContent
-
-Task: Review this Azure DevOps pipeline for issues, anti-patterns, and security concerns.
+        # Prepare the task prompt
+        $task = @"
+Review this Azure DevOps pipeline for issues, anti-patterns, and security concerns.
 
 Pipeline: $pipelineFile
 ``yaml
@@ -94,46 +86,21 @@ Respond in JSON format:
 }
 "@
         
-        # Prepare API request
-        $body = @{
-          model = "gpt-4o"
-          messages = @(
-            @{
-              role = "system"
-              content = "You are an Azure DevOps expert. Always respond with valid JSON."
-            }
-            @{
-              role = "user"
-              content = $prompt
-            }
-          )
-          temperature = 0.2
-          max_tokens = 2048
-        } | ConvertTo-Json -Depth 10
-        
-        $headers = @{
-          "Authorization" = "Bearer $(GH_MODELS_TOKEN)"
-          "Content-Type" = "application/json"
-        }
-        
-        # Call GitHub Models API
+        # Call the helper script with the existing SKILL.md
         try {
-          Write-Host "Calling GitHub Models API..."
+          Write-Host "Invoking skill with helper script..."
           
-          $response = Invoke-RestMethod `
-            -Uri "https://models.github.com/v1/chat/completions" `
-            -Method Post `
-            -Headers $headers `
-            -Body $body `
-            -ErrorAction Stop
+          & .\catalog\pipeline-skill-invoker\scripts\invoke-skill.ps1 `
+            -SkillPath "catalog/ado-pipeline-author/SKILL.md" `
+            -Task $task `
+            -Model "gpt-4o" `
+            -Temperature 0.2 `
+            -OutputFile "validation-result.json" `
+            -Token $(GH_MODELS_TOKEN) `
+            -Verbose
           
-          $resultText = $response.choices[0].message.content
-          
-          # Parse JSON response
-          $result = $resultText | ConvertFrom-Json
-          
-          # Save result
-          $result | ConvertTo-Json -Depth 10 | Out-File validation-result.json
+          # Parse the result
+          $result = Get-Content validation-result.json -Raw | ConvertFrom-Json
           
           # Display results
           Write-Host "`n=== Validation Results ===" -ForegroundColor Cyan
@@ -164,7 +131,7 @@ Respond in JSON format:
           }
           
         } catch {
-          Write-Host "##vso[task.logissue type=error]API call failed: $_"
+          Write-Host "##vso[task.logissue type=error]Skill invocation failed: $_"
           Write-Host $_.Exception.Message
           exit 1
         }

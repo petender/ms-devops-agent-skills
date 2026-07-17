@@ -41,19 +41,15 @@ jobs:
         id: validate
         if: steps.find-files.outputs.has_files == 'true'
         run: |
-          # Read the skill
-          SKILL_CONTENT=$(cat catalog/dockerfile-hardener/SKILL.md)
+          # KEY DESIGN: Reuse existing SKILL.md without modification
+          # The same dockerfile-hardener/SKILL.md used locally works here
           
-          # Read the Dockerfile
+          # Read the Dockerfile to analyze
           DOCKERFILE_PATH="${{ steps.find-files.outputs.dockerfile }}"
           DOCKERFILE_CONTENT=$(cat "$DOCKERFILE_PATH")
           
-          # Construct the prompt
-          PROMPT="You are a Docker security expert.
-
-$SKILL_CONTENT
-
-Task: Analyze this Dockerfile for security vulnerabilities and provide hardening recommendations.
+          # Prepare the task prompt
+          TASK="Analyze this Dockerfile for security vulnerabilities and provide hardening recommendations.
 
 Dockerfile: $DOCKERFILE_PATH
 \`\`\`dockerfile
@@ -69,41 +65,21 @@ Respond in JSON format:
   \"passes_gate\": true (if security_score >= 70 and no critical_issues)
 }"
           
-          # Call GitHub Models API
-          RESPONSE=$(curl -s -X POST \
-            https://models.github.com/v1/chat/completions \
-            -H "Authorization: Bearer ${{ secrets.GH_MODELS_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d "{
-              \"model\": \"gpt-4o\",
-              \"messages\": [
-                {
-                  \"role\": \"system\",
-                  \"content\": \"You are a Docker security expert. Always respond with valid JSON.\"
-                },
-                {
-                  \"role\": \"user\",
-                  \"content\": $(echo "$PROMPT" | jq -Rs .)
-                }
-              ],
-              \"temperature\": 0.2
-            }")
+          # Call the helper script with the existing SKILL.md
+          ./catalog/pipeline-skill-invoker/scripts/invoke-skill.sh \
+            --skill catalog/dockerfile-hardener/SKILL.md \
+            --task "$TASK" \
+            --model gpt-4o \
+            --temperature 0.2 \
+            --output validation-result.json
           
-          # Extract and validate result
-          if ! echo "$RESPONSE" | jq . > /dev/null 2>&1; then
-            echo "::error::Invalid API response"
-            echo "$RESPONSE"
-            exit 1
-          fi
-          
-          RESULT=$(echo "$RESPONSE" | jq -r '.choices[0].message.content')
-          
-          # Save for PR comment
-          echo "$RESULT" | tee validation-result.json
+          # Parse the result
+          RESULT=$(cat validation-result.json)
           
           # Check if valid JSON
           if ! echo "$RESULT" | jq . > /dev/null 2>&1; then
             echo "::error::AI returned invalid JSON"
+            cat validation-result.json
             exit 1
           fi
           
@@ -117,6 +93,8 @@ Respond in JSON format:
           if [ "$PASSES" != "true" ]; then
             echo "::warning::Dockerfile security validation failed (score: $SCORE)"
           fi
+        env:
+          GH_MODELS_TOKEN: ${{ secrets.GH_MODELS_TOKEN }}
       
       - name: Comment validation results on PR
         if: always() && steps.validate.conclusion != 'skipped'

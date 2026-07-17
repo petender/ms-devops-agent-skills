@@ -11,6 +11,19 @@ This skill demonstrates how to invoke any skill from the DevOps Agent Skills cat
 - ✅ **Auto-generate code** - Create Helm charts, K8s manifests, Terraform from specs
 - ✅ **Code review automation** - AI-powered reviews on PRs
 - ✅ **Compliance checks** - Enforce organizational standards automatically
+- ✅ **Local-to-pipeline workflow** - Use the same SKILL.md locally during development, then integrate into CI/CD as your team scales
+
+## 💡 The Local-to-Pipeline Workflow
+
+One of the key design principles: **reuse existing SKILL.md files without modification**.
+
+**Typical adoption path:**
+1. 🧪 **Local experimentation** - Team uses `dockerfile-hardener/SKILL.md` locally with Copilot agent
+2. 📈 **Standardization** - Team agrees on best practices, maybe customizes the SKILL.md
+3. 🚀 **Pipeline integration** - Same SKILL.md gets invoked automatically in CI/CD via helper scripts
+4. 🔄 **Continuous improvement** - Updates to SKILL.md automatically apply to both local and pipeline usage
+
+**No need to rewrite or duplicate skill logic** - the helper scripts handle the API integration while preserving your skill content.
 
 ## 🚀 Quick Start
 
@@ -46,12 +59,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Validate with AI
+      - name: Validate with AI using existing skill
         run: |
+          # Reuse the existing dockerfile-hardener SKILL.md
           ./catalog/pipeline-skill-invoker/scripts/invoke-skill.sh \
             --skill catalog/dockerfile-hardener/SKILL.md \
-            --task "Review this Dockerfile for security issues" \
-            --input "$(cat Dockerfile)" \
+            --task "Review this Dockerfile: $(cat Dockerfile)" \
             --output validation.json
         env:
           GH_MODELS_TOKEN: ${{ secrets.GH_MODELS_TOKEN }}
@@ -83,9 +96,12 @@ Explore complete, ready-to-use examples in the [`examples/`](./examples/) direct
 
 ## 🛠️ Helper Scripts
 
+These scripts handle all API integration, letting you focus on **reusing existing SKILL.md files**.
+
 ### PowerShell (Windows/Linux/macOS)
 
 ```powershell
+# Reuse any existing SKILL.md from the catalog
 .\scripts\invoke-skill.ps1 `
     -SkillPath "catalog/terraform-module-reviewer/SKILL.md" `
     -Task "Review this Terraform for security issues" `
@@ -96,12 +112,15 @@ Explore complete, ready-to-use examples in the [`examples/`](./examples/) direct
 ### Bash (Linux/macOS)
 
 ```bash
+# Same SKILL.md works in pipelines and locally
 ./scripts/invoke-skill.sh \
     --skill catalog/helm-chart-scaffold/SKILL.md \
     --task "Generate a Helm chart for a Node.js app" \
     --input "Node 20, Express, PostgreSQL" \
     --output chart/values.yaml
 ```
+
+**Key point:** You never modify the SKILL.md. The helper script reads it, constructs the API call, and returns the AI response.
 
 ## 🎓 Training & Documentation
 
