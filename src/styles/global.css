@@ -1,0 +1,100 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-ink-50 text-ink-900 antialiased;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+  html.dark body {
+    @apply bg-ink-950 text-ink-100;
+  }
+  a {
+    @apply underline decoration-transparent underline-offset-4 transition-colors;
+  }
+  a:hover {
+    @apply decoration-current;
+  }
+  code, kbd, samp, pre {
+    font-family: theme('fontFamily.mono');
+  }
+  :focus-visible {
+    @apply outline-none ring-2 ring-offset-2 ring-offset-white ring-indigo-500;
+  }
+  html.dark :focus-visible {
+    @apply ring-offset-ink-950 ring-indigo-400;
+  }
+}
+
+@layer components {
+  .prose-devops {
+    @apply max-w-none text-ink-800 leading-relaxed;
+  }
+  .prose-devops h1 { @apply text-3xl font-semibold mt-8 mb-4; }
+  .prose-devops h2 { @apply text-2xl font-semibold mt-8 mb-3 border-b border-ink-200 pb-2; }
+  .prose-devops h3 { @apply text-xl font-semibold mt-6 mb-2; }
+  .prose-devops h4 { @apply text-lg font-semibold mt-4 mb-2; }
+  .prose-devops p  { @apply my-3; }
+  .prose-devops ul { @apply list-disc pl-6 my-3 space-y-1; }
+  .prose-devops ol { @apply list-decimal pl-6 my-3 space-y-1; }
+  .prose-devops code:not(pre code) {
+    @apply rounded bg-ink-100 px-1.5 py-0.5 text-[0.9em] text-ink-800;
+  }
+  .prose-devops pre {
+    @apply rounded-lg my-4 p-4 overflow-x-auto text-sm;
+  }
+  .prose-devops blockquote {
+    @apply border-l-4 border-ink-300 pl-4 italic text-ink-600 my-4;
+  }
+  .prose-devops table {
+    @apply w-full my-4 border-collapse;
+  }
+  .prose-devops th, .prose-devops td {
+    @apply border border-ink-200 px-3 py-2 text-left;
+  }
+  .prose-devops a {
+    @apply text-indigo-600 decoration-indigo-300;
+  }
+  html.dark .prose-devops { @apply text-ink-200; }
+  html.dark .prose-devops h2 { @apply border-ink-700; }
+  html.dark .prose-devops code:not(pre code) { @apply bg-ink-800 text-ink-100; }
+  html.dark .prose-devops blockquote { @apply border-ink-600 text-ink-400; }
+  html.dark .prose-devops th, html.dark .prose-devops td { @apply border-ink-700; }
+  html.dark .prose-devops a { @apply text-indigo-300 decoration-indigo-500; }
+
+  .chip {
+    @apply inline-flex items-center rounded-full border border-ink-200 bg-white px-2.5 py-0.5 text-xs font-medium text-ink-700 transition;
+  }
+  .chip:hover { @apply border-indigo-400 text-indigo-700; }
+  html.dark .chip { @apply border-ink-700 bg-ink-900 text-ink-200; }
+  html.dark .chip:hover { @apply border-indigo-500 text-indigo-300; }
+
+  .chip-active {
+    @apply border-indigo-500 bg-indigo-500/10 text-indigo-700;
+  }
+  html.dark .chip-active { @apply text-indigo-200; }
+
+  .btn {
+    @apply inline-flex items-center gap-2 rounded-lg border border-ink-200 bg-white px-3 py-1.5 text-sm font-medium text-ink-800 shadow-sm transition hover:border-indigo-500 hover:text-indigo-700;
+  }
+  html.dark .btn { @apply border-ink-700 bg-ink-900 text-ink-100 hover:border-indigo-400 hover:text-indigo-300; }
+
+  .btn-primary {
+    @apply inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-3.5 py-1.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-500;
+  }
+
+  .card {
+    @apply rounded-2xl border border-ink-200 bg-white shadow-card transition;
+  }
+  html.dark .card { @apply border-ink-800 bg-ink-900; }
+  .card:hover { @apply border-indigo-400; }
+  html.dark .card:hover { @apply border-indigo-500; }
+
+  .badge {
+    @apply inline-flex items-center rounded-md px-2 py-0.5 text-xs font-semibold;
+  }
+}

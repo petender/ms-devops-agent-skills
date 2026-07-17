@@ -1,0 +1,13 @@
+parameters:
+  - name: nodeVersion
+    default: '20.x'
+
+jobs:
+- job: build
+  steps:
+  - task: NodeTool@0
+    inputs: { versionSpec: '${{ parameters.nodeVersion }}' }
+  - script: npm ci && npm run build --if-present && npm test --if-present
+    displayName: 'Build & test'
+  - task: PublishBuildArtifacts@1
+    inputs: { PathtoPublish: 'dist', ArtifactName: 'app' }

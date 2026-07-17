@@ -1,0 +1,12 @@
+parameters:
+  - name: env
+    type: string
+
+steps:
+- download: current
+  artifact: app
+- task: AzureWebApp@1
+  inputs:
+    azureSubscription: 'sc-${{ parameters.env }}'
+    appName: 'myapp-${{ parameters.env }}'
+    package: '$(Pipeline.Workspace)/app'

@@ -1,0 +1,27 @@
+{
+  "name": "Azure DevOps Pipeline Author",
+  "description": "Author idiomatic azure-pipelines.yml files with reusable templates, stages, and gated deploys — for Azure Pipelines (YAML).",
+  "category": "ci",
+  "platforms": [
+    "GitHub Copilot",
+    "Claude",
+    "Copilot CLI",
+    "Copilot Cloud Agent"
+  ],
+  "tools": [
+    "Azure DevOps",
+    "YAML"
+  ],
+  "tags": [
+    "ci",
+    "azure-devops",
+    "yaml"
+  ],
+  "level": "intermediate",
+  "estimatedMinutes": 25,
+  "learningPaths": [
+    "new-to-cicd"
+  ],
+  "author": "DevOps Community",
+  "version": "1.0.0"
+}

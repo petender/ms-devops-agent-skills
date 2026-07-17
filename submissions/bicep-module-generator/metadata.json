@@ -1,0 +1,28 @@
+{
+  "name": "Bicep Module Generator",
+  "description": "Author idempotent, parameterized Azure Bicep modules with @description decorators, typed parameters, outputs, and a main.bicep composition example.",
+  "category": "iac",
+  "platforms": [
+    "GitHub Copilot",
+    "Claude",
+    "Copilot CLI",
+    "Copilot Cloud Agent"
+  ],
+  "tools": [
+    "Azure",
+    "Bicep"
+  ],
+  "tags": [
+    "iac",
+    "azure",
+    "bicep"
+  ],
+  "level": "intermediate",
+  "estimatedMinutes": 25,
+  "learningPaths": [
+    "platform-engineer",
+    "aks-from-zero"
+  ],
+  "author": "DevOps Community",
+  "version": "1.0.0"
+}

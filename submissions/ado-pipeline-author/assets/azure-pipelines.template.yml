@@ -1,0 +1,24 @@
+# Copy this into the repo root and edit.
+trigger:
+  branches: { include: [main] }
+
+pool: { vmImage: ubuntu-latest }
+
+variables:
+  - group: shared-secrets
+
+stages:
+- stage: Build
+  jobs:
+  - template: templates/build.yml
+- stage: Deploy_Dev
+  dependsOn: Build
+  jobs:
+  - deployment: dev
+    environment: dev
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - template: templates/deploy.yml
+            parameters: { env: dev }

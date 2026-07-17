@@ -1,0 +1,28 @@
+{
+  "name": "Azure Pipelines → GitHub Actions Migrator",
+  "description": "Convert an azure-pipelines.yml file to an equivalent GitHub Actions workflow — mapping stages/jobs/steps, service connections, and variable groups.",
+  "category": "ci",
+  "platforms": [
+    "GitHub Copilot",
+    "Claude",
+    "Copilot CLI",
+    "Copilot Cloud Agent"
+  ],
+  "tools": [
+    "Azure DevOps",
+    "GitHub Actions"
+  ],
+  "tags": [
+    "ci",
+    "migration",
+    "github-actions",
+    "azure-devops"
+  ],
+  "level": "intermediate",
+  "estimatedMinutes": 35,
+  "learningPaths": [
+    "new-to-cicd"
+  ],
+  "author": "DevOps Community",
+  "version": "1.0.0"
+}

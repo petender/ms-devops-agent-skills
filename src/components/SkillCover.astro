@@ -1,0 +1,16 @@
+---
+import { renderCover } from '@/lib/cover';
+import type { CATEGORIES } from '@/content/config';
+
+interface Props {
+  slug: string;
+  category: (typeof CATEGORIES)[number];
+  width?: number;
+  height?: number;
+  class?: string;
+}
+
+const { slug, category, width, height, class: className = '' } = Astro.props;
+const svg = renderCover({ slug, category, width, height });
+---
+<div class={`overflow-hidden aspect-[16/9] ${className}`} set:html={svg} />

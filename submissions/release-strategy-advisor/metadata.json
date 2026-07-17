@@ -1,0 +1,28 @@
+{
+  "name": "Release Strategy Advisor",
+  "description": "Recommend blue-green, canary, or rolling deployment strategy for a service and produce the concrete pipeline + K8s / traffic-manager config to implement it.",
+  "category": "release",
+  "platforms": [
+    "GitHub Copilot",
+    "Claude",
+    "Copilot CLI",
+    "Copilot Cloud Agent"
+  ],
+  "tools": [
+    "Kubernetes",
+    "GitHub Actions",
+    "Azure"
+  ],
+  "tags": [
+    "release",
+    "k8s",
+    "ci"
+  ],
+  "level": "advanced",
+  "estimatedMinutes": 30,
+  "learningPaths": [
+    "platform-engineer"
+  ],
+  "author": "DevOps Community",
+  "version": "1.0.0"
+}

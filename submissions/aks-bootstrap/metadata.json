@@ -1,0 +1,30 @@
+{
+  "name": "AKS Cluster Bootstrap",
+  "description": "Bootstrap a production-shaped AKS cluster with managed identity, Azure CNI Overlay, workload identity, and a system nodepool separated from user workloads.",
+  "category": "k8s",
+  "platforms": [
+    "GitHub Copilot",
+    "Claude",
+    "Copilot CLI",
+    "Copilot Cloud Agent"
+  ],
+  "tools": [
+    "Azure",
+    "AKS",
+    "Bicep"
+  ],
+  "tags": [
+    "k8s",
+    "aks",
+    "azure",
+    "bootstrap"
+  ],
+  "level": "advanced",
+  "estimatedMinutes": 40,
+  "learningPaths": [
+    "aks-from-zero",
+    "platform-engineer"
+  ],
+  "author": "DevOps Community",
+  "version": "1.0.0"
+}

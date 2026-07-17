@@ -1,0 +1,26 @@
+{
+  "name": "Azure Cost Rightsizer",
+  "description": "Pull utilization data for Azure VMs, App Service plans, and AKS nodepools; recommend rightsizing / reserved instance / savings plan actions with dollar estimates.",
+  "category": "finops",
+  "platforms": [
+    "GitHub Copilot",
+    "Claude",
+    "Copilot CLI",
+    "Copilot Cloud Agent"
+  ],
+  "tools": [
+    "Azure",
+    "Azure Monitor",
+    "Cost Management"
+  ],
+  "tags": [
+    "finops",
+    "azure",
+    "cost"
+  ],
+  "level": "intermediate",
+  "estimatedMinutes": 30,
+  "learningPaths": [],
+  "author": "DevOps Community",
+  "version": "1.0.0"
+}

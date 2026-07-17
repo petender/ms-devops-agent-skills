@@ -1,0 +1,25 @@
+{
+  "name": "Kubernetes Manifest Author",
+  "description": "Write production-ready Kubernetes manifests (Deployment, Service, ConfigMap, HPA, PDB) with security contexts, probes, and requests/limits.",
+  "category": "k8s",
+  "platforms": [
+    "GitHub Copilot",
+    "Claude",
+    "Copilot CLI",
+    "Copilot Cloud Agent"
+  ],
+  "tools": [
+    "Kubernetes"
+  ],
+  "tags": [
+    "k8s",
+    "yaml"
+  ],
+  "level": "intermediate",
+  "estimatedMinutes": 25,
+  "learningPaths": [
+    "aks-from-zero"
+  ],
+  "author": "DevOps Community",
+  "version": "1.0.0"
+}

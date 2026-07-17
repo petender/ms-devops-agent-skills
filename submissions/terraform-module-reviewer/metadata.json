@@ -1,0 +1,26 @@
+{
+  "name": "Terraform Module Reviewer",
+  "description": "Review a Terraform module for idempotency, variable typing, output completeness, provider pinning, and state safety issues.",
+  "category": "iac",
+  "platforms": [
+    "GitHub Copilot",
+    "Claude",
+    "Copilot CLI",
+    "Copilot Cloud Agent"
+  ],
+  "tools": [
+    "Terraform"
+  ],
+  "tags": [
+    "iac",
+    "terraform",
+    "review"
+  ],
+  "level": "intermediate",
+  "estimatedMinutes": 20,
+  "learningPaths": [
+    "platform-engineer"
+  ],
+  "author": "DevOps Community",
+  "version": "1.0.0"
+}

@@ -1,0 +1,194 @@
+---
+import { CATEGORIES, CATEGORY_LABELS, LEVELS } from '@/content/config';
+
+interface Props {
+  tools: string[];
+  paths: { slug: string; name: string }[];
+}
+
+const { tools, paths } = Astro.props;
+---
+<div class="rounded-2xl border border-ink-200 bg-white p-4 shadow-card dark:border-ink-800 dark:bg-ink-900">
+  <div class="flex flex-col gap-3">
+    <label class="relative block">
+      <span class="sr-only">Search skills</span>
+      <svg class="absolute left-3 top-2.5 h-4 w-4 text-ink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>
+      </svg>
+      <input
+        id="fb-q"
+        type="search"
+        placeholder="Search skills (name, tag, tool)…"
+        autocomplete="off"
+        class="w-full rounded-lg border border-ink-200 bg-white pl-9 pr-3 py-2 text-sm text-ink-900 placeholder:text-ink-400 focus:border-indigo-500 dark:border-ink-700 dark:bg-ink-950 dark:text-ink-100"
+      />
+    </label>
+
+    <div class="flex flex-wrap items-center gap-1.5" data-group="category">
+      <span class="text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400 mr-1">Category</span>
+      <button type="button" class="chip chip-active" data-cat="">All</button>
+      {CATEGORIES.map((c) => (
+        <button type="button" class="chip" data-cat={c}>{CATEGORY_LABELS[c]}</button>
+      ))}
+    </div>
+
+    <div class="flex flex-wrap items-center gap-1.5" data-group="tool">
+      <span class="text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400 mr-1">Tool</span>
+      <button type="button" class="chip chip-active" data-tool="">All</button>
+      {tools.map((t) => (
+        <button type="button" class="chip" data-tool={t}>{t}</button>
+      ))}
+    </div>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <label class="flex items-center gap-2 text-sm text-ink-700 dark:text-ink-200">
+        <span class="text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">Level</span>
+        <select id="fb-level" class="rounded-lg border border-ink-200 bg-white px-2 py-1 text-sm dark:border-ink-700 dark:bg-ink-950 dark:text-ink-100">
+          <option value="">Any</option>
+          {LEVELS.map((l) => <option value={l}>{l}</option>)}
+        </select>
+      </label>
+      <label class="flex items-center gap-2 text-sm text-ink-700 dark:text-ink-200">
+        <span class="text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">Sort</span>
+        <select id="fb-sort" class="rounded-lg border border-ink-200 bg-white px-2 py-1 text-sm dark:border-ink-700 dark:bg-ink-950 dark:text-ink-100">
+          <option value="relevance">Relevance</option>
+          <option value="name">Name</option>
+          <option value="minutes">Duration</option>
+        </select>
+      </label>
+      <label class="flex items-center gap-2 text-sm text-ink-700 dark:text-ink-200">
+        <span class="text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">Path</span>
+        <select id="fb-path" class="rounded-lg border border-ink-200 bg-white px-2 py-1 text-sm dark:border-ink-700 dark:bg-ink-950 dark:text-ink-100">
+          <option value="">Any</option>
+          {paths.map((p) => <option value={p.slug}>{p.name}</option>)}
+        </select>
+      </label>
+      <button id="fb-reset" type="button" class="btn ml-auto">Reset</button>
+    </div>
+    <p id="fb-count" class="text-xs text-ink-500 dark:text-ink-400"></p>
+  </div>
+</div>
+
+<script>
+  // Filter behavior: reads URL params, filters cards in #skill-grid, updates URL.
+  const grid = document.getElementById('skill-grid');
+  const q = document.getElementById('fb-q') as HTMLInputElement | null;
+  const level = document.getElementById('fb-level') as HTMLSelectElement | null;
+  const sort = document.getElementById('fb-sort') as HTMLSelectElement | null;
+  const pathSel = document.getElementById('fb-path') as HTMLSelectElement | null;
+  const count = document.getElementById('fb-count');
+  const reset = document.getElementById('fb-reset');
+  if (!grid || !q || !level || !sort || !pathSel || !count) throw new Error('FilterBar: missing element');
+
+  const state = { q: '', category: '', tool: '', level: '', sort: 'relevance', path: '' };
+
+  function readUrl() {
+    const p = new URLSearchParams(window.location.search);
+    state.q = p.get('q') ?? '';
+    state.category = p.get('category') ?? '';
+    state.tool = p.get('tool') ?? '';
+    state.level = p.get('level') ?? '';
+    state.sort = p.get('sort') ?? 'relevance';
+    state.path = p.get('path') ?? '';
+    q!.value = state.q;
+    level!.value = state.level;
+    sort!.value = state.sort;
+    pathSel!.value = state.path;
+    for (const b of document.querySelectorAll<HTMLButtonElement>('[data-cat]')) {
+      b.classList.toggle('chip-active', (b.dataset.cat ?? '') === state.category);
+    }
+    for (const b of document.querySelectorAll<HTMLButtonElement>('[data-tool]')) {
+      b.classList.toggle('chip-active', (b.dataset.tool ?? '') === state.tool);
+    }
+  }
+
+  function writeUrl() {
+    const p = new URLSearchParams();
+    if (state.q) p.set('q', state.q);
+    if (state.category) p.set('category', state.category);
+    if (state.tool) p.set('tool', state.tool);
+    if (state.level) p.set('level', state.level);
+    if (state.sort && state.sort !== 'relevance') p.set('sort', state.sort);
+    if (state.path) p.set('path', state.path);
+    const qs = p.toString();
+    const url = qs ? `?${qs}` : window.location.pathname;
+    history.replaceState(null, '', url);
+  }
+
+  function scoreCard(card: HTMLElement, terms: string[]): number {
+    if (!terms.length) return 1;
+    const name = card.dataset.name ?? '';
+    const desc = card.dataset.description ?? '';
+    const tags = (card.dataset.tags ?? '').toLowerCase();
+    const tools = (card.dataset.tools ?? '').toLowerCase();
+    let s = 0;
+    for (const t of terms) {
+      if (name === t) s += 100;
+      else if (name.startsWith(t)) s += 50;
+      else if (name.includes(t)) s += 25;
+      if (tags.split(',').includes(t)) s += 20;
+      else if (tags.includes(t)) s += 8;
+      if (tools.split(',').map((x) => x.trim().toLowerCase()).includes(t)) s += 15;
+      if (desc.includes(t)) s += 3;
+    }
+    return s;
+  }
+
+  function apply() {
+    const cards = Array.from(grid!.children) as HTMLElement[];
+    const terms = state.q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    const scored: { el: HTMLElement; score: number; minutes: number; name: string }[] = [];
+    let visible = 0;
+    for (const el of cards) {
+      const catOk = !state.category || el.dataset.category === state.category;
+      const toolOk = !state.tool || (el.dataset.tools ?? '').split(',').includes(state.tool);
+      const levelOk = !state.level || el.dataset.level === state.level;
+      const pathOk = !state.path || (el.dataset.paths ?? '').split(',').includes(state.path);
+      const s = catOk && toolOk && levelOk && pathOk ? scoreCard(el, terms) : 0;
+      if (s > 0) {
+        visible++;
+        el.classList.remove('hidden');
+        const minutes = parseInt(el.querySelector('.text-xs span:nth-child(5)')?.textContent ?? '0', 10) || 0;
+        scored.push({ el, score: s, minutes, name: el.dataset.name ?? '' });
+      } else {
+        el.classList.add('hidden');
+      }
+    }
+    scored.sort((a, b) => {
+      if (state.sort === 'name') return a.name.localeCompare(b.name);
+      if (state.sort === 'minutes') return a.minutes - b.minutes;
+      return b.score - a.score;
+    });
+    for (const s of scored) grid!.appendChild(s.el);
+    count!.textContent = `${visible} skill${visible === 1 ? '' : 's'} shown`;
+  }
+
+  q.addEventListener('input', () => { state.q = q!.value; writeUrl(); apply(); });
+  level.addEventListener('change', () => { state.level = level!.value; writeUrl(); apply(); });
+  sort.addEventListener('change', () => { state.sort = sort!.value; writeUrl(); apply(); });
+  pathSel.addEventListener('change', () => { state.path = pathSel!.value; writeUrl(); apply(); });
+  for (const b of document.querySelectorAll<HTMLButtonElement>('[data-cat]')) {
+    b.addEventListener('click', () => {
+      state.category = b.dataset.cat ?? '';
+      for (const x of document.querySelectorAll<HTMLButtonElement>('[data-cat]')) x.classList.toggle('chip-active', x === b);
+      writeUrl(); apply();
+    });
+  }
+  for (const b of document.querySelectorAll<HTMLButtonElement>('[data-tool]')) {
+    b.addEventListener('click', () => {
+      state.tool = b.dataset.tool ?? '';
+      for (const x of document.querySelectorAll<HTMLButtonElement>('[data-tool]')) x.classList.toggle('chip-active', x === b);
+      writeUrl(); apply();
+    });
+  }
+  reset?.addEventListener('click', () => {
+    state.q = state.category = state.tool = state.level = state.path = '';
+    state.sort = 'relevance';
+    history.replaceState(null, '', window.location.pathname);
+    readUrl();
+    apply();
+  });
+
+  readUrl();
+  apply();
+</script>

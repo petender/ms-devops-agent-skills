@@ -1,0 +1,78 @@
+---
+/**
+ * Two-tab viewer for a skill's portable SKILL.md and its metadata.json.
+ * A single SKILL.md is what ships to every supported agent per the
+ * Agent Skills open standard (agentskills.io) — no per-client variant.
+ */
+interface Props {
+  body: string;
+  metadata: Record<string, unknown>;
+  slug: string;
+}
+const { body, metadata, slug } = Astro.props;
+const metaStr = JSON.stringify(metadata, null, 2);
+---
+<div class="rounded-2xl border border-ink-200 bg-white dark:border-ink-800 dark:bg-ink-900">
+  <div role="tablist" class="flex flex-wrap gap-1 border-b border-ink-200 px-3 pt-3 dark:border-ink-800">
+    <button type="button" role="tab" aria-selected="true" data-tab="skill" class="tab tab-active">
+      <code class="text-[10px]">SKILL.md</code>
+    </button>
+    <button type="button" role="tab" aria-selected="false" data-tab="metadata" class="tab">
+      <code class="text-[10px]">metadata.json</code>
+    </button>
+    <button type="button" data-copy class="btn ml-auto mb-2" title="Copy visible tab to clipboard">
+      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>
+      </svg>
+      <span data-copy-label>Copy</span>
+    </button>
+  </div>
+  <pre id={`tab-skill-${slug}`} role="tabpanel" class="tab-panel"><code class="language-markdown">{body}</code></pre>
+  <pre id={`tab-metadata-${slug}`} role="tabpanel" hidden class="tab-panel"><code class="language-json">{metaStr}</code></pre>
+</div>
+
+<style>
+  .tab {
+    @apply rounded-t-lg border border-transparent px-3 py-1.5 text-sm font-medium text-ink-600 hover:text-indigo-600 hover:bg-ink-50 dark:text-ink-300 dark:hover:text-indigo-300 dark:hover:bg-ink-800;
+  }
+  .tab-active {
+    @apply border-ink-200 border-b-white bg-white text-ink-900 dark:border-ink-800 dark:border-b-ink-900 dark:bg-ink-900 dark:text-ink-100;
+  }
+  .tab-panel {
+    @apply m-0 max-h-[65vh] overflow-auto rounded-b-2xl bg-ink-900 p-4 text-xs leading-relaxed text-ink-100 whitespace-pre-wrap break-words;
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[role="tablist"]').forEach((list) => {
+    const tabs = list.querySelectorAll<HTMLButtonElement>('[data-tab]');
+    const container = list.parentElement!;
+    const copyBtn = list.querySelector<HTMLButtonElement>('[data-copy]');
+    const copyLabel = list.querySelector<HTMLElement>('[data-copy-label]');
+    tabs.forEach((t) => {
+      t.addEventListener('click', () => {
+        tabs.forEach((x) => {
+          x.classList.remove('tab-active');
+          x.setAttribute('aria-selected', 'false');
+        });
+        t.classList.add('tab-active');
+        t.setAttribute('aria-selected', 'true');
+        container.querySelectorAll<HTMLPreElement>('.tab-panel').forEach((p) => (p.hidden = true));
+        const key = t.dataset.tab;
+        const panel = container.querySelector<HTMLPreElement>(`[id^="tab-${key}-"]`);
+        if (panel) panel.hidden = false;
+      });
+    });
+    copyBtn?.addEventListener('click', async () => {
+      const visible = container.querySelector<HTMLPreElement>('.tab-panel:not([hidden])');
+      if (!visible) return;
+      try {
+        await navigator.clipboard.writeText(visible.innerText);
+        if (copyLabel) copyLabel.textContent = 'Copied!';
+        setTimeout(() => { if (copyLabel) copyLabel.textContent = 'Copy'; }, 1400);
+      } catch {
+        if (copyLabel) copyLabel.textContent = 'Failed';
+      }
+    });
+  });
+</script>

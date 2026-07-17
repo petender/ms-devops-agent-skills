@@ -1,0 +1,30 @@
+{
+  "name": "DevSecOps Preflight",
+  "description": "Add a preflight security stage to CI: secret scanning, SAST, dependency vulnerability scan, container image scan, and SBOM generation.",
+  "category": "security",
+  "platforms": [
+    "GitHub Copilot",
+    "Claude",
+    "Copilot CLI",
+    "Copilot Cloud Agent"
+  ],
+  "tools": [
+    "GitHub Actions",
+    "Trivy",
+    "Semgrep",
+    "Syft"
+  ],
+  "tags": [
+    "security",
+    "ci",
+    "sbom",
+    "sast"
+  ],
+  "level": "intermediate",
+  "estimatedMinutes": 30,
+  "learningPaths": [
+    "devsecops-starter"
+  ],
+  "author": "DevOps Community",
+  "version": "1.0.0"
+}

@@ -1,0 +1,74 @@
+---
+import '@/styles/global.css';
+import DarkModeToggle from '@/components/DarkModeToggle.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = 'Community gallery of dual-format DevOps agent skills for trainers and learners.' } = Astro.props;
+import { base } from '@/lib/url';
+const siteName = 'DevOps Agent Skills';
+---
+<!doctype html>
+<html lang="en" class="scroll-pt-16">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} · {siteName}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#4f46e5" />
+    <script is:inline>
+      // Dark mode: apply saved preference before hydration to avoid flash.
+      (function () {
+        try {
+          var stored = localStorage.getItem('theme');
+          var preferDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var dark = stored ? stored === 'dark' : preferDark;
+          if (dark) document.documentElement.classList.add('dark');
+        } catch (e) { /* ignore */ }
+      })();
+    </script>
+  </head>
+  <body class="min-h-screen flex flex-col">
+    <header class="sticky top-0 z-40 border-b border-ink-200 bg-white/80 backdrop-blur dark:border-ink-800 dark:bg-ink-950/80">
+      <div class="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3">
+        <a href={base} class="flex items-center gap-2 font-semibold text-ink-900 hover:text-indigo-600 dark:text-ink-100 dark:hover:text-indigo-300">
+          <svg width="28" height="28" viewBox="0 0 32 32" aria-hidden="true">
+            <rect x="2" y="2" width="28" height="28" rx="6" fill="#4f46e5"/>
+            <path d="M8 20 L14 12 L20 20 L26 12" stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="8" cy="20" r="2" fill="white"/>
+            <circle cx="20" cy="20" r="2" fill="white"/>
+          </svg>
+          <span>DevOps Agent Skills</span>
+        </a>
+        <nav class="ml-auto flex items-center gap-1 text-sm">
+          <a href={base} class="btn">Catalog</a>
+          <a href={`${base}trainer`} class="btn">Trainer</a>
+          <a href={`${base}paths`} class="btn hidden sm:inline-flex">Learning paths</a>
+          <a href="https://github.com/petender/ms-devops-agent-skills" class="btn" rel="noopener">GitHub</a>
+          <DarkModeToggle />
+        </nav>
+      </div>
+    </header>
+    <main class="flex-1">
+      <slot />
+    </main>
+    <footer class="mt-16 border-t border-ink-200 bg-white py-8 text-sm text-ink-600 dark:border-ink-800 dark:bg-ink-950 dark:text-ink-400">
+      <div class="mx-auto flex max-w-7xl flex-col gap-2 px-4 sm:flex-row sm:justify-between">
+        <p>
+          Built with <a class="text-indigo-600 hover:underline dark:text-indigo-300" href="https://astro.build">Astro</a> &amp; <a class="text-indigo-600 hover:underline dark:text-indigo-300" href="https://tailwindcss.com">Tailwind</a>. MIT licensed.
+        </p>
+        <p class="flex items-center gap-3">
+          <a href={`${base}contribute`} class="hover:text-indigo-600 dark:hover:text-indigo-300">Contribute a skill</a>
+          <a href="https://github.com/petender/ms-devops-agent-skills/issues/new" class="hover:text-indigo-600 dark:hover:text-indigo-300">Report an issue</a>
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

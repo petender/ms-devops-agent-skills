@@ -1,0 +1,30 @@
+{
+  "name": "OIDC Azure Federated Credentials",
+  "description": "Replace long-lived Azure service principal secrets with OIDC federated credentials for GitHub Actions or Azure DevOps.",
+  "category": "security",
+  "platforms": [
+    "GitHub Copilot",
+    "Claude",
+    "Copilot CLI",
+    "Copilot Cloud Agent"
+  ],
+  "tools": [
+    "Azure",
+    "GitHub Actions",
+    "Azure DevOps"
+  ],
+  "tags": [
+    "security",
+    "oidc",
+    "azure",
+    "github-actions"
+  ],
+  "level": "advanced",
+  "estimatedMinutes": 30,
+  "learningPaths": [
+    "devsecops-starter",
+    "platform-engineer"
+  ],
+  "author": "DevOps Community",
+  "version": "1.0.0"
+}

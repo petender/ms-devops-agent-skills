@@ -1,0 +1,45 @@
+---
+import SkillCover from './SkillCover.astro';
+import { CATEGORY_LABELS } from '@/content/config';
+import { CATEGORY_BADGE } from '@/lib/category-classes';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  skill: CollectionEntry<'skills'>;
+}
+
+const { skill } = Astro.props;
+import { base } from '@/lib/url';
+const d = skill.data;
+const slug = skill.slug;
+const href = `${base}skills/${slug}/`;
+const badgeClass = CATEGORY_BADGE[d.category];
+---
+<a href={href}
+   class="card group flex flex-col overflow-hidden focus:outline-none"
+   data-slug={slug}
+   data-category={d.category}
+   data-level={d.level}
+   data-tags={d.tags.join(',')}
+   data-tools={d.tools.join(',')}
+   data-paths={d.learningPaths.join(',')}
+   data-name={d.name.toLowerCase()}
+   data-description={d.description.toLowerCase()}>
+  <SkillCover slug={slug} category={d.category} class="aspect-[16/9] w-full" />
+  <div class="flex flex-1 flex-col gap-3 p-4">
+    <div class="flex items-center gap-2 text-xs">
+      <span class:list={["badge", badgeClass]}>{CATEGORY_LABELS[d.category]}</span>
+      <span class="text-ink-500 dark:text-ink-400">·</span>
+      <span class="text-ink-600 dark:text-ink-400 capitalize">{d.level}</span>
+      <span class="text-ink-500 dark:text-ink-400">·</span>
+      <span class="text-ink-600 dark:text-ink-400">{d.estimatedMinutes} min</span>
+    </div>
+    <h3 class="text-lg font-semibold text-ink-900 group-hover:text-indigo-600 dark:text-ink-100 dark:group-hover:text-indigo-300">{d.name}</h3>
+    <p class="line-clamp-3 text-sm text-ink-600 dark:text-ink-300">{d.description}</p>
+    <div class="mt-auto flex flex-wrap gap-1.5 pt-2">
+      {d.tags.slice(0, 4).map((tag) => (
+        <span class="chip">{tag}</span>
+      ))}
+    </div>
+  </div>
+</a>

@@ -1,0 +1,24 @@
+{
+  "name": "Reusable Workflow Refactor",
+  "description": "Refactor duplicated CI logic across multiple GitHub Actions workflows into a single reusable workflow (workflow_call).",
+  "category": "ci",
+  "platforms": [
+    "GitHub Copilot",
+    "Claude",
+    "Copilot CLI",
+    "Copilot Cloud Agent"
+  ],
+  "tools": [
+    "GitHub Actions"
+  ],
+  "tags": [
+    "ci",
+    "github-actions",
+    "refactor"
+  ],
+  "level": "intermediate",
+  "estimatedMinutes": 20,
+  "learningPaths": [],
+  "author": "DevOps Community",
+  "version": "1.0.0"
+}

@@ -1,0 +1,27 @@
+{
+  "name": "Docker Compose → Kubernetes Manifests",
+  "description": "Translate a docker-compose.yml file into a set of clean Kubernetes manifests (Deployment, Service, ConfigMap, Secret) with realistic resource requests and probes.",
+  "category": "container",
+  "platforms": [
+    "GitHub Copilot",
+    "Claude",
+    "Copilot CLI",
+    "Copilot Cloud Agent"
+  ],
+  "tools": [
+    "Docker",
+    "Kubernetes"
+  ],
+  "tags": [
+    "container",
+    "kubernetes",
+    "migration"
+  ],
+  "level": "intermediate",
+  "estimatedMinutes": 30,
+  "learningPaths": [
+    "aks-from-zero"
+  ],
+  "author": "DevOps Community",
+  "version": "1.0.0"
+}

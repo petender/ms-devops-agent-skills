@@ -1,0 +1,28 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { base } from '@/lib/url';
+---
+<BaseLayout title="Contribute a skill">
+  <section class="mx-auto max-w-3xl px-4 py-10 prose-devops">
+    <h1>Contribute a skill</h1>
+    <p>
+      A skill is a self-contained folder in <code>submissions/&lt;slug&gt;/</code>. Every skill ships as a single portable <code>SKILL.md</code> per the <a href="https://agentskills.io/" rel="noopener">Agent Skills open standard</a> — loaded natively by GitHub Copilot (VS Code, CLI, Cloud Agent), Claude, and any compatible client — plus a trainer note so instructors get a lesson plan for free.
+    </p>
+    <h2>The 30-second path</h2>
+    <pre><code>git clone https://github.com/petender/ms-devops-agent-skills
+cd ms-devops-agent-skills
+npm install
+npm run new-skill -- --slug my-awesome-skill --name "My Awesome Skill" --category ci
+npm run validate
+npm run dev</code></pre>
+    <p>Open a PR — CI validates the schema and runs a full build.</p>
+    <h2>Submission shape</h2>
+    <pre><code>submissions/&lt;slug&gt;/
+├── metadata.json           # catalog entry
+├── SKILL.md                # single portable skill (name + description frontmatter)
+├── trainer.md              # optional lesson plan
+├── assets/                 # optional templates / sample files
+└── scripts/                # optional helper scripts</code></pre>
+    <p>See <a href="https://github.com/petender/ms-devops-agent-skills/blob/main/CONTRIBUTING.md">CONTRIBUTING.md</a> for the full guide, and <a href={`${base}`}>the catalog</a> for examples.</p>
+  </section>
+</BaseLayout>

@@ -1,0 +1,64 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import SkillCard from '@/components/SkillCard.astro';
+import FilterBar from '@/components/FilterBar.astro';
+import LearningPathTile from '@/components/LearningPathTile.astro';
+import { getCollection } from 'astro:content';
+import paths from '@/data/learning-paths.json';
+
+const skills = (await getCollection('skills')).sort((a, b) => a.data.name.localeCompare(b.data.name));
+const allTools = Array.from(new Set(skills.flatMap((s) => s.data.tools))).sort();
+const pathOptions = paths.map((p) => ({ slug: p.slug, name: p.name }));
+const pathCounts = paths.map((p) => ({ ...p, count: p.skills.filter((sl) => skills.some((s) => s.slug === sl)).length }));
+---
+<BaseLayout title="Catalog">
+  <section class="mx-auto max-w-7xl px-4 py-10 sm:py-14">
+    <div class="mb-8 max-w-3xl">
+      <p class="mb-3 inline-flex items-center gap-2 rounded-full bg-indigo-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-indigo-700 dark:text-indigo-300">
+        Community gallery · {skills.length} skills
+      </p>
+      <h1 class="text-4xl font-bold tracking-tight text-ink-900 dark:text-ink-100 sm:text-5xl">
+        DevOps agent skills you can drop into your workflow.
+      </h1>
+      <p class="mt-3 text-lg text-ink-600 dark:text-ink-300">
+        A reusable set of dual-format skills — <span class="font-semibold">Claude</span> <code>SKILL.md</code> and
+        <span class="font-semibold">Copilot</span> <code>.instructions.md</code> — for the tasks a DevOps engineer
+        actually does: pipelines, IaC, containers, Kubernetes, observability, security, release, incident response,
+        and FinOps. Trainers get a lesson-plan view; learners get copy-paste-ready instructions.
+      </p>
+    </div>
+
+    <div class="mb-10">
+      <h2 class="mb-3 text-sm font-semibold uppercase tracking-wider text-ink-500 dark:text-ink-400">Learning paths</h2>
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {pathCounts.map((p) => (
+          <LearningPathTile slug={p.slug} name={p.name} description={p.description} count={p.count} color={p.color as 'teal' | 'indigo' | 'amber' | 'red'} />
+        ))}
+      </div>
+    </div>
+
+    <div class="mb-6">
+      <FilterBar tools={allTools} paths={pathOptions} />
+    </div>
+
+    <div id="skill-grid" class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      {skills.map((s) => <SkillCard skill={s} />)}
+    </div>
+
+    <div id="empty-state" class="hidden mt-8 rounded-2xl border border-dashed border-ink-300 p-8 text-center text-ink-500 dark:border-ink-700 dark:text-ink-400">
+      No skills match your filter. Try resetting.
+    </div>
+  </section>
+
+  <script>
+    // Hint the empty state.
+    const grid = document.getElementById('skill-grid');
+    const empty = document.getElementById('empty-state');
+    if (grid && empty) {
+      new MutationObserver(() => {
+        const anyVisible = Array.from(grid.children).some((c) => !c.classList.contains('hidden'));
+        empty.classList.toggle('hidden', anyVisible);
+      }).observe(grid, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
+    }
+  </script>
+</BaseLayout>

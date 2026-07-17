@@ -1,0 +1,26 @@
+{
+  "name": "Incident Runbook Author",
+  "description": "Turn an alert or a past incident into a repeatable runbook: triage steps, diagnostic commands, mitigation, communication template, and postmortem seed.",
+  "category": "ir",
+  "platforms": [
+    "GitHub Copilot",
+    "Claude",
+    "Copilot CLI",
+    "Copilot Cloud Agent"
+  ],
+  "tools": [
+    "Azure",
+    "Application Insights",
+    "Kubernetes"
+  ],
+  "tags": [
+    "ir",
+    "runbook",
+    "operations"
+  ],
+  "level": "intermediate",
+  "estimatedMinutes": 20,
+  "learningPaths": [],
+  "author": "DevOps Community",
+  "version": "1.0.0"
+}

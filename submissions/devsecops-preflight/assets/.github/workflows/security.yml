@@ -1,0 +1,26 @@
+name: Security Preflight
+on:
+  pull_request:
+  push: { branches: [main] }
+permissions:
+  contents: read
+  security-events: write
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: gitleaks/gitleaks-action@v2
+      - uses: semgrep/semgrep-action@v1
+        with: { config: p/ci }
+      - run: npm ci && npm audit --omit=dev --audit-level=high
+      - run: docker build -t app:pr .
+      - uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: app:pr
+          severity: CRITICAL
+          exit-code: 1
+      - uses: anchore/sbom-action@v0
+        with:
+          image: app:pr
+          format: cyclonedx-json

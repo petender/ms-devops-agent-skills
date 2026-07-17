@@ -1,0 +1,28 @@
+{
+  "name": "GitHub Actions Workflow Author",
+  "description": "Write clean, matrix-friendly GitHub Actions workflows with reusable jobs, concurrency guards, and least-privilege permissions.",
+  "category": "ci",
+  "platforms": [
+    "GitHub Copilot",
+    "Claude",
+    "Copilot CLI",
+    "Copilot Cloud Agent"
+  ],
+  "tools": [
+    "GitHub Actions",
+    "YAML"
+  ],
+  "tags": [
+    "ci",
+    "github-actions",
+    "yaml"
+  ],
+  "level": "beginner",
+  "estimatedMinutes": 20,
+  "learningPaths": [
+    "new-to-cicd",
+    "devsecops-starter"
+  ],
+  "author": "DevOps Community",
+  "version": "1.0.0"
+}

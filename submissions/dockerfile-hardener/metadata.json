@@ -1,0 +1,26 @@
+{
+  "name": "Dockerfile Hardener",
+  "description": "Rewrite a Dockerfile to be minimal, non-root, multi-stage, pinned by digest, with a HEALTHCHECK and no build tools in the final image.",
+  "category": "container",
+  "platforms": [
+    "GitHub Copilot",
+    "Claude",
+    "Copilot CLI",
+    "Copilot Cloud Agent"
+  ],
+  "tools": [
+    "Docker"
+  ],
+  "tags": [
+    "container",
+    "docker",
+    "security"
+  ],
+  "level": "intermediate",
+  "estimatedMinutes": 25,
+  "learningPaths": [
+    "devsecops-starter"
+  ],
+  "author": "DevOps Community",
+  "version": "1.0.0"
+}

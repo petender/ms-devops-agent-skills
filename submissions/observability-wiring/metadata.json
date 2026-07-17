@@ -1,0 +1,28 @@
+{
+  "name": "App Observability Wiring",
+  "description": "Wire OpenTelemetry traces, metrics, and structured logs into an app and export them to Azure Monitor / Application Insights.",
+  "category": "obs",
+  "platforms": [
+    "GitHub Copilot",
+    "Claude",
+    "Copilot CLI",
+    "Copilot Cloud Agent"
+  ],
+  "tools": [
+    "Azure",
+    "Application Insights",
+    "OpenTelemetry"
+  ],
+  "tags": [
+    "obs",
+    "otel",
+    "app-insights"
+  ],
+  "level": "intermediate",
+  "estimatedMinutes": 30,
+  "learningPaths": [
+    "platform-engineer"
+  ],
+  "author": "DevOps Community",
+  "version": "1.0.0"
+}

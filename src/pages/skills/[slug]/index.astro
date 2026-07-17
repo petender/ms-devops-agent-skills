@@ -1,0 +1,154 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import SkillCover from '@/components/SkillCover.astro';
+import SkillContentTabs from '@/components/SkillContentTabs.astro';
+import SkillCard from '@/components/SkillCard.astro';
+import { CATEGORY_LABELS } from '@/content/config';
+import { CATEGORY_BADGE } from '@/lib/category-classes';
+import { getCollection, type CollectionEntry } from 'astro:content';
+
+export async function getStaticPaths() {
+  const skills = await getCollection('skills');
+  return skills.map((skill) => ({
+    params: { slug: skill.slug },
+    props: { skill, all: skills },
+  }));
+}
+
+interface Props {
+  skill: CollectionEntry<'skills'>;
+  all: CollectionEntry<'skills'>[];
+}
+
+const { skill, all } = Astro.props;
+const d = skill.data;
+const slug = skill.slug;
+import { base } from '@/lib/url';
+
+const related = all
+  .filter((s) => s.slug !== slug && (s.data.category === d.category || s.data.tags.some((t) => d.tags.includes(t))))
+  .slice(0, 3);
+
+const metadata = {
+  name: d.name,
+  slug: slug,
+  description: d.description,
+  category: d.category,
+  platforms: d.platforms,
+  tools: d.tools,
+  tags: d.tags,
+  level: d.level,
+  estimatedMinutes: d.estimatedMinutes,
+  learningPaths: d.learningPaths,
+  author: d.author,
+  version: d.version,
+};
+---
+<BaseLayout title={d.name} description={d.description}>
+  <article class="mx-auto max-w-6xl px-4 py-10">
+    <nav class="mb-4 text-sm text-ink-500 dark:text-ink-400">
+      <a href={base} class="hover:text-indigo-600 dark:hover:text-indigo-300">Catalog</a>
+      <span class="mx-1">/</span>
+      <a href={`${base}categories/${d.category}`} class="hover:text-indigo-600 dark:hover:text-indigo-300">{CATEGORY_LABELS[d.category]}</a>
+      <span class="mx-1">/</span>
+      <span class="text-ink-700 dark:text-ink-200">{d.name}</span>
+    </nav>
+
+    <div class="grid gap-8 lg:grid-cols-[2fr_1fr]">
+      <div>
+        <div class="mb-4 overflow-hidden rounded-2xl border border-ink-200 dark:border-ink-800">
+          <SkillCover slug={slug} category={d.category} class="w-full" />
+        </div>
+        <div class="mb-3 flex flex-wrap items-center gap-2 text-xs">
+          <span class:list={["badge", CATEGORY_BADGE[d.category]]}>{CATEGORY_LABELS[d.category]}</span>
+          <span class="text-ink-500 dark:text-ink-400">·</span>
+          <span class="capitalize text-ink-700 dark:text-ink-300">{d.level}</span>
+          <span class="text-ink-500 dark:text-ink-400">·</span>
+          <span class="text-ink-700 dark:text-ink-300">{d.estimatedMinutes} min</span>
+          <span class="text-ink-500 dark:text-ink-400">·</span>
+          <span class="text-ink-700 dark:text-ink-300">v{d.version}</span>
+        </div>
+        <h1 class="text-3xl font-bold tracking-tight text-ink-900 dark:text-ink-100 sm:text-4xl">{d.name}</h1>
+        <p class="mt-3 text-lg text-ink-600 dark:text-ink-300">{d.description}</p>
+        <div class="mt-4 flex flex-wrap gap-1.5">
+          {d.tags.map((tag) => (
+            <a href={`${base}tags/${tag}`} class="chip">{tag}</a>
+          ))}
+        </div>
+
+        <h2 class="mt-10 mb-3 text-xl font-semibold text-ink-900 dark:text-ink-100">Agent-facing instructions</h2>
+        <p class="mb-4 text-sm text-ink-600 dark:text-ink-300">
+          A single portable <code>SKILL.md</code> per the <a class="text-indigo-600 hover:underline dark:text-indigo-300" href="https://agentskills.io/" rel="noopener">Agent Skills open standard</a> — loaded natively by GitHub Copilot (VS Code, CLI, Cloud Agent), Claude, and any compatible client.
+        </p>
+        <SkillContentTabs slug={slug} body={d.body} metadata={metadata} />
+
+        {related.length > 0 && (
+          <>
+            <h2 class="mt-12 mb-4 text-xl font-semibold text-ink-900 dark:text-ink-100">Related skills</h2>
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {related.map((s) => <SkillCard skill={s} />)}
+            </div>
+          </>
+        )}
+      </div>
+
+      <aside class="space-y-4">
+        <div class="rounded-2xl border border-ink-200 bg-white p-4 shadow-card dark:border-ink-800 dark:bg-ink-900">
+          <h3 class="mb-3 text-sm font-semibold uppercase tracking-wider text-ink-500 dark:text-ink-400">Downloads</h3>
+          <div class="flex flex-col gap-2">
+            <a class="btn justify-start" download href={`${base}skills/${slug}/SKILL.md`}>
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M20 21H4"/></svg>
+              <code class="text-xs">SKILL.md</code>
+            </a>
+            {(d.hasAssets || d.hasScripts) && (
+              <a class="btn-primary justify-start" download href={`${base}bundles/${slug}.zip`}>
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+                Full bundle (.zip)
+              </a>
+            )}
+          </div>
+        </div>
+
+        {d.hasTrainerNotes && (
+          <a href={`${base}trainer/${slug}/`} class="block rounded-2xl border border-indigo-500/30 bg-gradient-to-br from-indigo-500/10 to-indigo-500/5 p-4 transition hover:border-indigo-500">
+            <p class="text-xs font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-300">For trainers</p>
+            <p class="mt-1 font-semibold text-ink-900 dark:text-ink-100">Open the lesson plan →</p>
+            <p class="mt-1 text-sm text-ink-600 dark:text-ink-300">Objectives, live demo script, exercises, discussion questions.</p>
+          </a>
+        )}
+
+        <div class="rounded-2xl border border-ink-200 bg-white p-4 shadow-card dark:border-ink-800 dark:bg-ink-900">
+          <h3 class="mb-3 text-sm font-semibold uppercase tracking-wider text-ink-500 dark:text-ink-400">Metadata</h3>
+          <dl class="space-y-2 text-sm">
+            <div>
+              <dt class="text-ink-500 dark:text-ink-400">Platforms</dt>
+              <dd class="text-ink-800 dark:text-ink-100">{d.platforms.join(', ')}</dd>
+            </div>
+            {d.tools.length > 0 && (
+              <div>
+                <dt class="text-ink-500 dark:text-ink-400">Tools</dt>
+                <dd class="text-ink-800 dark:text-ink-100">{d.tools.join(', ')}</dd>
+              </div>
+            )}
+            {d.learningPaths.length > 0 && (
+              <div>
+                <dt class="text-ink-500 dark:text-ink-400">Learning paths</dt>
+                <dd class="flex flex-wrap gap-1.5">
+                  {d.learningPaths.map((p) => (
+                    <a class="chip" href={`${base}?path=${p}`}>{p}</a>
+                  ))}
+                </dd>
+              </div>
+            )}
+            <div>
+              <dt class="text-ink-500 dark:text-ink-400">Author</dt>
+              <dd class="text-ink-800 dark:text-ink-100">
+                {d.authorUrl ? <a class="text-indigo-600 hover:underline dark:text-indigo-300" href={d.authorUrl}>{d.author}</a> : d.author}
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </aside>
+    </div>
+  </article>
+</BaseLayout>

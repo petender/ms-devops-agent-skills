@@ -1,0 +1,57 @@
+[
+  {
+    "slug": "new-to-cicd",
+    "name": "New to CI/CD",
+    "description": "Zero-to-first-pipeline in either Azure DevOps or GitHub Actions, with a hands-on progression.",
+    "color": "teal",
+    "skills": [
+      "ado-pipeline-author",
+      "gha-workflow-author",
+      "reusable-workflow-refactor",
+      "oidc-azure-federation",
+      "release-strategy-advisor"
+    ]
+  },
+  {
+    "slug": "aks-from-zero",
+    "name": "AKS from zero",
+    "description": "Ship your first container to AKS the right way: manifests, Helm, and cluster bootstrap.",
+    "color": "indigo",
+    "skills": [
+      "dockerfile-hardener",
+      "docker-compose-to-k8s",
+      "k8s-manifest-author",
+      "helm-chart-scaffold",
+      "aks-bootstrap",
+      "observability-wiring"
+    ]
+  },
+  {
+    "slug": "devsecops-starter",
+    "name": "DevSecOps starter",
+    "description": "Bake security checks into every PR — SAST, secret scanning, SBOM, and image scanning.",
+    "color": "red",
+    "skills": [
+      "devsecops-preflight",
+      "oidc-azure-federation",
+      "dockerfile-hardener",
+      "ir-runbook-author"
+    ]
+  },
+  {
+    "slug": "platform-engineer",
+    "name": "Platform engineer track",
+    "description": "The full stack a platform team needs: IaC, containers, K8s, observability, cost.",
+    "color": "amber",
+    "skills": [
+      "bicep-module-generator",
+      "terraform-module-reviewer",
+      "aks-bootstrap",
+      "helm-chart-scaffold",
+      "observability-wiring",
+      "devsecops-preflight",
+      "azure-cost-rightsizer",
+      "pipeline-to-actions-migrator"
+    ]
+  }
+]

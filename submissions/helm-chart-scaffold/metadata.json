@@ -1,0 +1,26 @@
+{
+  "name": "Helm Chart Scaffold",
+  "description": "Scaffold a well-structured Helm chart with values.yaml, _helpers.tpl, templates for Deployment/Service/Ingress, and NOTES.txt.",
+  "category": "k8s",
+  "platforms": [
+    "GitHub Copilot",
+    "Claude",
+    "Copilot CLI",
+    "Copilot Cloud Agent"
+  ],
+  "tools": [
+    "Kubernetes",
+    "Helm"
+  ],
+  "tags": [
+    "k8s",
+    "helm"
+  ],
+  "level": "intermediate",
+  "estimatedMinutes": 20,
+  "learningPaths": [
+    "aks-from-zero"
+  ],
+  "author": "DevOps Community",
+  "version": "1.0.0"
+}
