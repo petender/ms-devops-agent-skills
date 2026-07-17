@@ -1,0 +1,187 @@
+name: Dockerfile Security Validation
+
+on:
+  pull_request:
+    paths:
+      - '**/Dockerfile*'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  validate-dockerfiles:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Find modified Dockerfiles
+        id: find-files
+        run: |
+          echo "Finding Dockerfiles modified in this PR..."
+          FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | grep -E 'Dockerfile' || true)
+          
+          if [ -z "$FILES" ]; then
+            echo "No Dockerfiles found"
+            echo "has_files=false" >> $GITHUB_OUTPUT
+          else
+            echo "Found files:"
+            echo "$FILES"
+            # Take first file for this example
+            FIRST_FILE=$(echo "$FILES" | head -n1)
+            echo "dockerfile=$FIRST_FILE" >> $GITHUB_OUTPUT
+            echo "has_files=true" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Validate Dockerfile with AI
+        id: validate
+        if: steps.find-files.outputs.has_files == 'true'
+        run: |
+          # Read the skill
+          SKILL_CONTENT=$(cat catalog/dockerfile-hardener/SKILL.md)
+          
+          # Read the Dockerfile
+          DOCKERFILE_PATH="${{ steps.find-files.outputs.dockerfile }}"
+          DOCKERFILE_CONTENT=$(cat "$DOCKERFILE_PATH")
+          
+          # Construct the prompt
+          PROMPT="You are a Docker security expert.
+
+$SKILL_CONTENT
+
+Task: Analyze this Dockerfile for security vulnerabilities and provide hardening recommendations.
+
+Dockerfile: $DOCKERFILE_PATH
+\`\`\`dockerfile
+$DOCKERFILE_CONTENT
+\`\`\`
+
+Respond in JSON format:
+{
+  \"security_score\": 0-100,
+  \"critical_issues\": [\"issue description with line number\"],
+  \"warnings\": [\"warning description\"],
+  \"recommendations\": [\"specific recommendation with example\"],
+  \"passes_gate\": true (if security_score >= 70 and no critical_issues)
+}"
+          
+          # Call GitHub Models API
+          RESPONSE=$(curl -s -X POST \
+            https://models.github.com/v1/chat/completions \
+            -H "Authorization: Bearer ${{ secrets.GH_MODELS_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"model\": \"gpt-4o\",
+              \"messages\": [
+                {
+                  \"role\": \"system\",
+                  \"content\": \"You are a Docker security expert. Always respond with valid JSON.\"
+                },
+                {
+                  \"role\": \"user\",
+                  \"content\": $(echo "$PROMPT" | jq -Rs .)
+                }
+              ],
+              \"temperature\": 0.2
+            }")
+          
+          # Extract and validate result
+          if ! echo "$RESPONSE" | jq . > /dev/null 2>&1; then
+            echo "::error::Invalid API response"
+            echo "$RESPONSE"
+            exit 1
+          fi
+          
+          RESULT=$(echo "$RESPONSE" | jq -r '.choices[0].message.content')
+          
+          # Save for PR comment
+          echo "$RESULT" | tee validation-result.json
+          
+          # Check if valid JSON
+          if ! echo "$RESULT" | jq . > /dev/null 2>&1; then
+            echo "::error::AI returned invalid JSON"
+            exit 1
+          fi
+          
+          # Extract pass/fail
+          PASSES=$(echo "$RESULT" | jq -r '.passes_gate')
+          SCORE=$(echo "$RESULT" | jq -r '.security_score')
+          
+          echo "passes=$PASSES" >> $GITHUB_OUTPUT
+          echo "score=$SCORE" >> $GITHUB_OUTPUT
+          
+          if [ "$PASSES" != "true" ]; then
+            echo "::warning::Dockerfile security validation failed (score: $SCORE)"
+          fi
+      
+      - name: Comment validation results on PR
+        if: always() && steps.validate.conclusion != 'skipped'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            
+            if (!fs.existsSync('validation-result.json')) {
+              console.log('No validation result found');
+              return;
+            }
+            
+            const result = JSON.parse(fs.readFileSync('validation-result.json', 'utf8'));
+            
+            const emoji = result.passes_gate ? '✅' : '❌';
+            const status = result.passes_gate ? 'PASSED' : 'FAILED';
+            const scoreColor = result.security_score >= 80 ? '🟢' : result.security_score >= 60 ? '🟡' : '🔴';
+            
+            let body = `## ${emoji} Dockerfile Security Validation: ${status}
+
+**Security Score:** ${scoreColor} ${result.security_score}/100
+
+`;
+            
+            if (result.critical_issues && result.critical_issues.length > 0) {
+              body += `### 🔴 Critical Issues\n`;
+              result.critical_issues.forEach(issue => {
+                body += `- ${issue}\n`;
+              });
+              body += '\n';
+            }
+            
+            if (result.warnings && result.warnings.length > 0) {
+              body += `### ⚠️ Warnings\n`;
+              result.warnings.forEach(warning => {
+                body += `- ${warning}\n`;
+              });
+              body += '\n';
+            }
+            
+            if (result.recommendations && result.recommendations.length > 0) {
+              body += `### 💡 Recommendations\n`;
+              result.recommendations.forEach(rec => {
+                body += `- ${rec}\n`;
+              });
+              body += '\n';
+            }
+            
+            body += `\n---\n*🤖 Powered by AI Skill: [dockerfile-hardener](../catalog/dockerfile-hardener/SKILL.md)*`;
+            
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
+      
+      - name: Fail if validation failed
+        if: steps.validate.outputs.passes != 'true' && steps.validate.outputs.passes != ''
+        run: |
+          echo "::error::Dockerfile security validation failed. See PR comments for details."
+          exit 1
+      
+      - name: Success summary
+        if: steps.validate.outputs.passes == 'true'
+        run: |
+          echo "::notice::✅ Dockerfile passed security validation (score: ${{ steps.validate.outputs.score }}/100)"

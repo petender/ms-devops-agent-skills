@@ -1,0 +1,243 @@
+trigger: none
+
+pr:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - '**/*.yml'
+      - '**/*.yaml'
+      - 'azure-pipelines*.yml'
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  - group: ai-tokens  # Contains GH_MODELS_TOKEN
+
+stages:
+- stage: Validate
+  displayName: 'AI Pipeline Validation'
+  jobs:
+  - job: ValidatePipeline
+    displayName: 'Validate Azure Pipeline with AI'
+    steps:
+    
+    - checkout: self
+      fetchDepth: 0
+    
+    - pwsh: |
+        Write-Host "Finding modified pipeline files..."
+        
+        # Get changed files in this PR
+        $changedFiles = git diff --name-only HEAD~1 HEAD | Where-Object { $_ -match '\.ya?ml$' }
+        
+        if (-not $changedFiles) {
+          Write-Host "No YAML files modified"
+          Write-Host "##vso[task.setvariable variable=hasFiles]false"
+          return
+        }
+        
+        Write-Host "Found modified files:"
+        $changedFiles | ForEach-Object { Write-Host "  - $_" }
+        
+        # Take first pipeline file for validation
+        $pipelineFile = $changedFiles | Select-Object -First 1
+        Write-Host "##vso[task.setvariable variable=pipelineFile]$pipelineFile"
+        Write-Host "##vso[task.setvariable variable=hasFiles]true"
+        
+      displayName: 'Find Modified Pipelines'
+    
+    - pwsh: |
+        $pipelineFile = "$(pipelineFile)"
+        
+        if ([string]::IsNullOrEmpty($pipelineFile) -or -not (Test-Path $pipelineFile)) {
+          Write-Host "Pipeline file not found or empty"
+          exit 0
+        }
+        
+        Write-Host "Validating pipeline: $pipelineFile"
+        
+        # Read the skill content
+        $skillPath = "catalog/ado-pipeline-author/SKILL.md"
+        if (-not (Test-Path $skillPath)) {
+          Write-Error "Skill file not found: $skillPath"
+          exit 1
+        }
+        
+        $skillContent = Get-Content $skillPath -Raw
+        $pipelineContent = Get-Content $pipelineFile -Raw
+        
+        # Construct the prompt
+        $prompt = @"
+You are an Azure DevOps pipeline expert.
+
+$skillContent
+
+Task: Review this Azure DevOps pipeline for issues, anti-patterns, and security concerns.
+
+Pipeline: $pipelineFile
+``yaml
+$pipelineContent
+``
+
+Respond in JSON format:
+{
+  "valid": true/false,
+  "score": 0-100,
+  "critical_issues": ["issue description"],
+  "warnings": ["warning description"],
+  "recommendations": ["specific recommendation"],
+  "best_practices": ["best practice followed"],
+  "passes_gate": true (if score >= 70 and no critical_issues)
+}
+"@
+        
+        # Prepare API request
+        $body = @{
+          model = "gpt-4o"
+          messages = @(
+            @{
+              role = "system"
+              content = "You are an Azure DevOps expert. Always respond with valid JSON."
+            }
+            @{
+              role = "user"
+              content = $prompt
+            }
+          )
+          temperature = 0.2
+          max_tokens = 2048
+        } | ConvertTo-Json -Depth 10
+        
+        $headers = @{
+          "Authorization" = "Bearer $(GH_MODELS_TOKEN)"
+          "Content-Type" = "application/json"
+        }
+        
+        # Call GitHub Models API
+        try {
+          Write-Host "Calling GitHub Models API..."
+          
+          $response = Invoke-RestMethod `
+            -Uri "https://models.github.com/v1/chat/completions" `
+            -Method Post `
+            -Headers $headers `
+            -Body $body `
+            -ErrorAction Stop
+          
+          $resultText = $response.choices[0].message.content
+          
+          # Parse JSON response
+          $result = $resultText | ConvertFrom-Json
+          
+          # Save result
+          $result | ConvertTo-Json -Depth 10 | Out-File validation-result.json
+          
+          # Display results
+          Write-Host "`n=== Validation Results ===" -ForegroundColor Cyan
+          Write-Host "Score: $($result.score)/100"
+          Write-Host "Passes Gate: $($result.passes_gate)"
+          
+          if ($result.critical_issues -and $result.critical_issues.Count -gt 0) {
+            Write-Host "`nCritical Issues:" -ForegroundColor Red
+            $result.critical_issues | ForEach-Object { Write-Host "  - $_" }
+          }
+          
+          if ($result.warnings -and $result.warnings.Count -gt 0) {
+            Write-Host "`nWarnings:" -ForegroundColor Yellow
+            $result.warnings | ForEach-Object { Write-Host "  - $_" }
+          }
+          
+          if ($result.recommendations -and $result.recommendations.Count -gt 0) {
+            Write-Host "`nRecommendations:" -ForegroundColor Green
+            $result.recommendations | ForEach-Object { Write-Host "  - $_" }
+          }
+          
+          # Set variables for next steps
+          Write-Host "##vso[task.setvariable variable=validationScore]$($result.score)"
+          Write-Host "##vso[task.setvariable variable=passesGate]$($result.passes_gate)"
+          
+          if (-not $result.passes_gate) {
+            Write-Host "##vso[task.logissue type=warning]Pipeline validation failed (score: $($result.score))"
+          }
+          
+        } catch {
+          Write-Host "##vso[task.logissue type=error]API call failed: $_"
+          Write-Host $_.Exception.Message
+          exit 1
+        }
+        
+      displayName: 'Validate Pipeline with AI'
+      condition: eq(variables['hasFiles'], 'true')
+      env:
+        GH_MODELS_TOKEN: $(GH_MODELS_TOKEN)
+    
+    - pwsh: |
+        if (-not (Test-Path "validation-result.json")) {
+          Write-Host "No validation result found, skipping"
+          return
+        }
+        
+        $result = Get-Content validation-result.json -Raw | ConvertFrom-Json
+        
+        $emoji = if ($result.passes_gate) { "✅" } else { "❌" }
+        $status = if ($result.passes_gate) { "PASSED" } else { "FAILED" }
+        
+        $markdown = @"
+## $emoji Azure Pipeline Validation: $status
+
+**Score:** $($result.score)/100
+**Gate Status:** $($result.passes_gate)
+
+"@
+        
+        if ($result.critical_issues -and $result.critical_issues.Count -gt 0) {
+          $markdown += "`n### 🔴 Critical Issues`n"
+          $result.critical_issues | ForEach-Object { $markdown += "- $_`n" }
+        }
+        
+        if ($result.warnings -and $result.warnings.Count -gt 0) {
+          $markdown += "`n### ⚠️ Warnings`n"
+          $result.warnings | ForEach-Object { $markdown += "- $_`n" }
+        }
+        
+        if ($result.recommendations -and $result.recommendations.Count -gt 0) {
+          $markdown += "`n### 💡 Recommendations`n"
+          $result.recommendations | ForEach-Object { $markdown += "- $_`n" }
+        }
+        
+        if ($result.best_practices -and $result.best_practices.Count -gt 0) {
+          $markdown += "`n### ✨ Best Practices Followed`n"
+          $result.best_practices | ForEach-Object { $markdown += "- $_`n" }
+        }
+        
+        $markdown += "`n---`n*🤖 Powered by AI Skill: ado-pipeline-author*"
+        
+        # Write to file for artifact
+        $markdown | Out-File -FilePath validation-summary.md -Encoding UTF8
+        
+        Write-Host "Validation summary created"
+        
+      displayName: 'Generate Validation Summary'
+      condition: succeededOrFailed()
+    
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathToPublish: '$(System.DefaultWorkingDirectory)'
+        artifactName: validation
+        artifactType: Container
+      displayName: 'Publish Validation Results'
+      condition: succeededOrFailed()
+    
+    - pwsh: |
+        if ("$(passesGate)" -eq "False") {
+          Write-Host "##vso[task.logissue type=error]Pipeline validation failed. Review the validation results artifact for details."
+          Write-Host "##vso[task.complete result=Failed;]Pipeline validation gate not passed"
+        } else {
+          Write-Host "##vso[task.complete result=Succeeded;]✅ Pipeline validation passed"
+        }
+        
+      displayName: 'Enforce Validation Gate'
+      condition: eq(variables['hasFiles'], 'true')

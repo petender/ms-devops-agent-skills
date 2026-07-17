@@ -1,0 +1,31 @@
+{
+  "name": "pipeline-skill-invoker",
+  "displayName": "Pipeline Skill Invoker",
+  "description": "Invoke AI skills from CI/CD pipelines using GitHub Models API or Copilot CLI. Automate DevOps tasks with AI-powered validation, generation, and analysis in GitHub Actions and Azure DevOps.",
+  "category": "automation",
+  "tags": [
+    "ci-cd",
+    "github-actions",
+    "azure-devops",
+    "automation",
+    "ai-ops",
+    "github-models",
+    "copilot-cli",
+    "pipeline-gates",
+    "validation",
+    "api"
+  ],
+  "author": "DevOps Agent Skills Team",
+  "version": "1.0.0",
+  "complexity": "intermediate",
+  "prerequisites": [
+    "GitHub account with access to GitHub Models or Copilot",
+    "GitHub Personal Access Token with models:read scope",
+    "Basic understanding of CI/CD pipelines",
+    "Familiarity with REST APIs or CLI tools"
+  ],
+  "collections": [
+    "automation",
+    "cicd-integration"
+  ]
+}
