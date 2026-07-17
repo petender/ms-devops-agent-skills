@@ -39,7 +39,7 @@ const metadata = {
   tags: d.tags,
   level: d.level,
   estimatedMinutes: d.estimatedMinutes,
-  learningPaths: d.learningPaths,
+  collections: d.collections,
   author: d.author,
   version: d.version,
 };
@@ -57,7 +57,7 @@ const metadata = {
     <div class="grid gap-8 lg:grid-cols-[2fr_1fr]">
       <div>
         <div class="mb-4 overflow-hidden rounded-2xl border border-ink-200 dark:border-ink-800">
-          <SkillCover slug={slug} category={d.category} class="w-full" />
+          <SkillCover slug={slug} category={d.category} class="aspect-[16/4] w-full" />
         </div>
         <div class="mb-3 flex flex-wrap items-center gap-2 text-xs">
           <span class:list={["badge", CATEGORY_BADGE[d.category]]}>{CATEGORY_LABELS[d.category]}</span>
@@ -130,12 +130,12 @@ const metadata = {
                 <dd class="text-ink-800 dark:text-ink-100">{d.tools.join(', ')}</dd>
               </div>
             )}
-            {d.learningPaths.length > 0 && (
+            {d.collections.length > 0 && (
               <div>
-                <dt class="text-ink-500 dark:text-ink-400">Learning paths</dt>
+                <dt class="text-ink-500 dark:text-ink-400">Collections</dt>
                 <dd class="flex flex-wrap gap-1.5">
-                  {d.learningPaths.map((p) => (
-                    <a class="chip" href={`${base}?path=${p}`}>{p}</a>
+                  {d.collections.map((c) => (
+                    <a class="chip" href={`${base}?collection=${c}`}>{c}</a>
                   ))}
                 </dd>
               </div>

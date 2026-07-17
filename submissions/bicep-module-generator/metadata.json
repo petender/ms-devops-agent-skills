@@ -19,7 +19,7 @@
   ],
   "level": "intermediate",
   "estimatedMinutes": 25,
-  "learningPaths": [
+  "collections": [
     "platform-engineer",
     "aks-from-zero"
   ],

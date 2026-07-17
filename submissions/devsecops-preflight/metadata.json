@@ -22,7 +22,7 @@
   ],
   "level": "intermediate",
   "estimatedMinutes": 30,
-  "learningPaths": [
+  "collections": [
     "devsecops-starter"
   ],
   "author": "DevOps Community",

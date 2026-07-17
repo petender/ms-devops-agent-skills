@@ -37,7 +37,7 @@ const metadata = {
   tags: ['todo'],
   level: 'intermediate',
   estimatedMinutes: 20,
-  learningPaths: [],
+  collections: [],
   author: 'DevOps Community',
   version: '1.0.0',
 };

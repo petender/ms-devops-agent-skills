@@ -25,7 +25,7 @@ https://petender.github.io/ms-devops-agent-skills/
 ## For trainers
 
 - Open the [Trainer view](https://petender.github.io/ms-devops-agent-skills/trainer/). Every skill has a lesson plan: learning objectives, prerequisites, live demo script, hands-on exercises, discussion questions, common pitfalls.
-- Use a **learning path** to sequence a workshop end-to-end.
+- Use a **collection** to sequence a workshop end-to-end.
 - Hand learners the same URL after class — they get the identical instructions their agent will read.
 
 ## Local development

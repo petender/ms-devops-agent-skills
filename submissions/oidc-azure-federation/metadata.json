@@ -21,7 +21,7 @@
   ],
   "level": "advanced",
   "estimatedMinutes": 30,
-  "learningPaths": [
+  "collections": [
     "devsecops-starter",
     "platform-engineer"
   ],

@@ -19,7 +19,7 @@
   ],
   "level": "intermediate",
   "estimatedMinutes": 30,
-  "learningPaths": [
+  "collections": [
     "aks-from-zero"
   ],
   "author": "DevOps Community",

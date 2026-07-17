@@ -1,38 +1,38 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
-import paths from '@/data/learning-paths.json';
+import collections from '@/data/collections.json';
 
 const skills = await getCollection('skills');
 const bySlug = new Map(skills.map((s) => [s.slug, s]));
 import { base } from '@/lib/url';
 
-const enriched = paths.map((p) => {
-  const entries = p.skills.map((sl) => bySlug.get(sl)).filter(Boolean) as typeof skills;
+const enriched = collections.map((c) => {
+  const entries = c.skills.map((sl) => bySlug.get(sl)).filter(Boolean) as typeof skills;
   const totalMin = entries.reduce((sum, s) => sum + s.data.estimatedMinutes, 0);
   const withNotes = entries.filter((s) => s.data.hasTrainerNotes).length;
-  return { ...p, entries, totalMin, withNotes };
+  return { ...c, entries, totalMin, withNotes };
 });
 
-const orphans = skills.filter((s) => !paths.some((p) => p.skills.includes(s.slug)));
+const orphans = skills.filter((s) => !collections.some((c) => c.skills.includes(s.slug)));
 ---
 <BaseLayout title="Trainer view" description="Ready-to-teach lesson plans for every DevOps agent skill.">
   <section class="mx-auto max-w-6xl px-4 py-10">
     <p class="mb-3 inline-flex items-center gap-2 rounded-full bg-indigo-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-indigo-700 dark:text-indigo-300">For trainers</p>
     <h1 class="text-3xl font-bold text-ink-900 dark:text-ink-100 sm:text-4xl">Teach the catalog in class.</h1>
     <p class="mt-3 max-w-3xl text-lg text-ink-600 dark:text-ink-300">
-      Each trainer page bundles learning objectives, prerequisites, a live-demo script, hands-on exercises, common pitfalls, and discussion questions. Pick a learning path or teach a single skill — the material is copy-paste-ready for slides and whiteboards.
+      Each trainer page bundles learning objectives, prerequisites, a live-demo script, hands-on exercises, common pitfalls, and discussion questions. Pick a collection or teach a single skill — the material is copy-paste-ready for slides and whiteboards.
     </p>
 
-    {enriched.map((p) => (
-      <section id={p.slug} class="mt-10 rounded-2xl border border-ink-200 bg-white p-5 shadow-card dark:border-ink-800 dark:bg-ink-900">
+    {enriched.map((c) => (
+      <section id={c.slug} class="mt-10 rounded-2xl border border-ink-200 bg-white p-5 shadow-card dark:border-ink-800 dark:bg-ink-900">
         <div class="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 class="text-xl font-semibold text-ink-900 dark:text-ink-100">{p.name}</h2>
-          <p class="text-sm text-ink-500 dark:text-ink-400">{p.entries.length} skills · ~{Math.round(p.totalMin / 60 * 10) / 10} h total · {p.withNotes} with trainer notes</p>
+          <h2 class="text-xl font-semibold text-ink-900 dark:text-ink-100">{c.name}</h2>
+          <p class="text-sm text-ink-500 dark:text-ink-400">{c.entries.length} skills · ~{Math.round(c.totalMin / 60 * 10) / 10} h total · {c.withNotes} with trainer notes</p>
         </div>
-        <p class="mt-1 text-ink-600 dark:text-ink-300">{p.description}</p>
+        <p class="mt-1 text-ink-600 dark:text-ink-300">{c.description}</p>
         <ol class="mt-4 divide-y divide-ink-200 dark:divide-ink-800">
-          {p.entries.map((s, i) => (
+          {c.entries.map((s, i) => (
             <li class="flex items-center gap-4 py-3">
               <span class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-xs font-bold text-white">{i + 1}</span>
               <div class="min-w-0 flex-1">
@@ -50,7 +50,7 @@ const orphans = skills.filter((s) => !paths.some((p) => p.skills.includes(s.slug
     {orphans.length > 0 && (
       <section class="mt-10 rounded-2xl border border-dashed border-ink-300 p-5 dark:border-ink-700">
         <h2 class="text-xl font-semibold text-ink-900 dark:text-ink-100">Standalone skills</h2>
-        <p class="mt-1 text-sm text-ink-600 dark:text-ink-300">Not part of a curated path — useful as one-off demos.</p>
+        <p class="mt-1 text-sm text-ink-600 dark:text-ink-300">Not part of a curated collection — useful as one-off demos.</p>
         <ul class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
           {orphans.map((s) => (
             <li>

@@ -21,7 +21,7 @@
   ],
   "level": "advanced",
   "estimatedMinutes": 40,
-  "learningPaths": [
+  "collections": [
     "aks-from-zero",
     "platform-engineer"
   ],

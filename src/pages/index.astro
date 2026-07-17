@@ -2,14 +2,14 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import SkillCard from '@/components/SkillCard.astro';
 import FilterBar from '@/components/FilterBar.astro';
-import LearningPathTile from '@/components/LearningPathTile.astro';
+import CollectionTile from '@/components/CollectionTile.astro';
 import { getCollection } from 'astro:content';
-import paths from '@/data/learning-paths.json';
+import collections from '@/data/collections.json';
 
 const skills = (await getCollection('skills')).sort((a, b) => a.data.name.localeCompare(b.data.name));
 const allTools = Array.from(new Set(skills.flatMap((s) => s.data.tools))).sort();
-const pathOptions = paths.map((p) => ({ slug: p.slug, name: p.name }));
-const pathCounts = paths.map((p) => ({ ...p, count: p.skills.filter((sl) => skills.some((s) => s.slug === sl)).length }));
+const collectionOptions = collections.map((c) => ({ slug: c.slug, name: c.name }));
+const collectionCounts = collections.map((c) => ({ ...c, count: c.skills.filter((sl) => skills.some((s) => s.slug === sl)).length }));
 ---
 <BaseLayout title="Catalog">
   <section class="mx-auto max-w-7xl px-4 py-10 sm:py-14">
@@ -29,16 +29,16 @@ const pathCounts = paths.map((p) => ({ ...p, count: p.skills.filter((sl) => skil
     </div>
 
     <div class="mb-10">
-      <h2 class="mb-3 text-sm font-semibold uppercase tracking-wider text-ink-500 dark:text-ink-400">Learning paths</h2>
+      <h2 class="mb-3 text-sm font-semibold uppercase tracking-wider text-ink-500 dark:text-ink-400">Collections</h2>
       <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {pathCounts.map((p) => (
-          <LearningPathTile slug={p.slug} name={p.name} description={p.description} count={p.count} color={p.color as 'teal' | 'indigo' | 'amber' | 'red'} />
+        {collectionCounts.map((c) => (
+          <CollectionTile slug={c.slug} name={c.name} description={c.description} count={c.count} color={c.color as 'teal' | 'indigo' | 'amber' | 'red'} />
         ))}
       </div>
     </div>
 
     <div class="mb-6">
-      <FilterBar tools={allTools} paths={pathOptions} />
+      <FilterBar tools={allTools} collections={collectionOptions} />
     </div>
 
     <div id="skill-grid" class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">

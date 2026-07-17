@@ -20,7 +20,7 @@
   ],
   "level": "intermediate",
   "estimatedMinutes": 35,
-  "learningPaths": [
+  "collections": [
     "new-to-cicd"
   ],
   "author": "DevOps Community",

@@ -42,7 +42,7 @@ The **slug** is the folder name. Use lowercase, digits, and hyphens. The slug mu
   "tags": ["iac", "azure", "bicep"],
   "level": "intermediate",
   "estimatedMinutes": 25,
-  "learningPaths": ["platform-engineer"],
+  "collections": ["platform-engineer"],
   "author": "DevOps Community",
   "version": "1.0.0"
 }
@@ -117,9 +117,9 @@ Populating `trainer.md` sets `hasTrainerNotes: true` and exposes the skill on th
 - [ ] `SKILL.md`'s frontmatter `name` matches the folder slug.
 - [ ] If the skill needs external tooling, list versions in `prerequisites`.
 
-## Learning paths
+## Collections
 
-Curated paths live in [`src/data/learning-paths.json`](src/data/learning-paths.json). Add your slug to an existing path or open a discussion to propose a new one.
+Curated collections live in [`src/data/collections.json`](src/data/collections.json). Add your slug to an existing collection or open a discussion to propose a new one.
 
 ## Reporting issues
 

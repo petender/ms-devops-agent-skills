@@ -7,10 +7,11 @@ interface Props {
   category: (typeof CATEGORIES)[number];
   width?: number;
   height?: number;
+  title?: string;
   class?: string;
 }
 
-const { slug, category, width, height, class: className = '' } = Astro.props;
-const svg = renderCover({ slug, category, width, height });
+const { slug, category, width, height, title, class: className = '' } = Astro.props;
+const svg = renderCover({ slug, category, width, height, title });
 ---
-<div class={`overflow-hidden aspect-[16/9] ${className}`} set:html={svg} />
+<div class={`overflow-hidden ${className}`} set:html={svg} />

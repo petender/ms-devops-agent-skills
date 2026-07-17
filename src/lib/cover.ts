@@ -76,14 +76,49 @@ function initialsFrom(slug: string): string {
   return letters.slice(0, 3);
 }
 
+/** Escape characters that would break inside an SVG text node. */
+function escapeSvg(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+/** Greedy word-wrap into at most `maxLines` lines of ≤ `maxChars` each. */
+function wrapTitle(title: string, maxChars: number, maxLines: number): string[] {
+  const words = title.split(/\s+/).filter(Boolean);
+  const lines: string[] = [];
+  let current = '';
+  for (const w of words) {
+    const candidate = current ? `${current} ${w}` : w;
+    if (candidate.length <= maxChars) {
+      current = candidate;
+    } else {
+      if (current) lines.push(current);
+      current = w;
+    }
+  }
+  if (current) lines.push(current);
+  if (lines.length > maxLines) {
+    const kept = lines.slice(0, maxLines);
+    kept[kept.length - 1] = `${kept[kept.length - 1].replace(/[\s\-–—:]+$/, '')}…`;
+    return kept;
+  }
+  return lines;
+}
+
 export interface CoverOptions {
   slug: string;
   category: Category;
   width?: number;
   height?: number;
+  /** Optional display title. When provided, it is rendered inside the cover
+   *  (bottom-left) instead of the decorative slug-initials watermark. */
+  title?: string;
 }
 
-export function renderCover({ slug, category, width = 640, height = 360 }: CoverOptions): string {
+export function renderCover({ slug, category, width = 640, height = 360, title }: CoverOptions): string {
   const p = PALETTE[category];
   const glyph = GLYPH[category];
   const seed = hashString(slug);
@@ -107,13 +142,29 @@ export function renderCover({ slug, category, width = 640, height = 360 }: Cover
   const gradId = `g-${seed.toString(36)}`;
   const glowId = `glow-${seed.toString(36)}`;
 
-  const initials = initialsFrom(slug);
-  const initialsX = width - 40;
-  const initialsY = height - 40;
-
   // Category glyph badge (top-left corner) — the constant identity marker.
   const badgeX = 28;
   const badgeY = 28;
+
+  // Foreground content: skill title (wrapped) if supplied, otherwise the
+  // legacy slug-initials watermark.
+  let foreground: string;
+  if (title && title.trim()) {
+    const lines = wrapTitle(title.trim(), 16, 3);
+    // Font size scales down as line count grows so a 3-line title still fits.
+    const fontSize = lines.length >= 3 ? 44 : lines.length === 2 ? 54 : 64;
+    const lineH = Math.round(fontSize * 1.08);
+    const startY = height - 44 - (lines.length - 1) * lineH;
+    const tspans = lines
+      .map((ln, i) => `<tspan x="40" dy="${i === 0 ? 0 : lineH}">${escapeSvg(ln)}</tspan>`)
+      .join('');
+    foreground = `<text x="40" y="${startY}" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-weight="800" font-size="${fontSize}" fill="${p.glyphFg}" fill-opacity="0.92" style="letter-spacing:-0.02em">${tspans}</text>`;
+  } else {
+    const initials = initialsFrom(slug);
+    const initialsX = width - 40;
+    const initialsY = height - 40;
+    foreground = `<text x="${initialsX}" y="${initialsY}" text-anchor="end" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-weight="800" font-size="${Math.round(height * 0.42)}" fill="${p.glyphFg}" fill-opacity="0.16" style="letter-spacing:-0.04em">${initials}</text>`;
+  }
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid slice" width="100%" height="100%" role="img" aria-label="Cover for ${slug}" style="display:block">
   <defs>
@@ -128,7 +179,7 @@ export function renderCover({ slug, category, width = 640, height = 360 }: Cover
   </defs>
   <rect width="${width}" height="${height}" fill="url(#${gradId})"/>
   <rect width="${width}" height="${height}" fill="url(#${glowId})"/>
-  <text x="${initialsX}" y="${initialsY}" text-anchor="end" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-weight="800" font-size="${Math.round(height * 0.42)}" fill="${p.glyphFg}" fill-opacity="0.16" style="letter-spacing:-0.04em">${initials}</text>
+  ${foreground}
   <g transform="translate(${badgeX} ${badgeY})">
     <rect width="64" height="64" rx="14" fill="${p.glyphFg}" fill-opacity="0.18" stroke="${p.glyphFg}" stroke-opacity="0.55" stroke-width="1.5"/>
     <path d="${glyph}" fill="none" stroke="${p.glyphFg}" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"/>

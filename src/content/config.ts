@@ -41,7 +41,7 @@ const skills = defineCollection({
     tags: z.array(z.string()).min(1),
     level: z.enum(LEVELS),
     estimatedMinutes: z.number().int().min(5).max(240),
-    learningPaths: z.array(z.string()).default([]),
+    collections: z.array(z.string()).default([]),
     author: z.string().default('DevOps Community'),
     authorUrl: z.string().url().optional(),
     version: z.string().default('1.0.0'),

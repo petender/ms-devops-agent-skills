@@ -13,7 +13,7 @@ export const GET: APIRoute = async () => {
     tags: s.data.tags,
     level: s.data.level,
     estimatedMinutes: s.data.estimatedMinutes,
-    learningPaths: s.data.learningPaths,
+    collections: s.data.collections,
     author: s.data.author,
     version: s.data.version,
     hasAssets: s.data.hasAssets,

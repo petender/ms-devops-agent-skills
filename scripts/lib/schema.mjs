@@ -25,7 +25,7 @@ export function validateMetadata(m) {
   if (!isArrayOf(m.tags, isString) || m.tags.length < 1) errors.push('tags must be a non-empty array of strings');
   if (!LEVELS.includes(m.level)) errors.push(`level must be one of ${LEVELS.join(', ')}`);
   if (typeof m.estimatedMinutes !== 'number' || m.estimatedMinutes < 5 || m.estimatedMinutes > 240) errors.push('estimatedMinutes must be a number 5–240');
-  if (m.learningPaths !== undefined && !isArrayOf(m.learningPaths, isString)) errors.push('learningPaths must be an array of strings');
+  if (m.collections !== undefined && !isArrayOf(m.collections, isString)) errors.push('collections must be an array of strings');
   if (m.author !== undefined && !isString(m.author)) errors.push('author must be a string');
   if (m.authorUrl !== undefined && !isString(m.authorUrl)) errors.push('authorUrl must be a URL string');
   if (m.version !== undefined && !isString(m.version)) errors.push('version must be a string');

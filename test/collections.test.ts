@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import paths from '../src/data/learning-paths.json';
+import collections from '../src/data/collections.json';
 import { readdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
-describe('learning-paths.json', () => {
+describe('collections.json', () => {
   it('every referenced slug exists in submissions/', () => {
     const submissions = new Set<string>();
     const dir = join(process.cwd(), 'submissions');
@@ -13,16 +13,16 @@ describe('learning-paths.json', () => {
       }
     }
     const missing: string[] = [];
-    for (const p of paths as Array<{ slug: string; skills: string[] }>) {
-      for (const s of p.skills) {
-        if (!submissions.has(s)) missing.push(`${p.slug} → ${s}`);
+    for (const c of collections as Array<{ slug: string; skills: string[] }>) {
+      for (const s of c.skills) {
+        if (!submissions.has(s)) missing.push(`${c.slug} → ${s}`);
       }
     }
-    expect(missing, `missing skills referenced by learning paths:\n${missing.join('\n')}`).toEqual([]);
+    expect(missing, `missing skills referenced by collections:\n${missing.join('\n')}`).toEqual([]);
   });
 
-  it('every path has a unique slug', () => {
-    const slugs = (paths as Array<{ slug: string }>).map((p) => p.slug);
+  it('every collection has a unique slug', () => {
+    const slugs = (collections as Array<{ slug: string }>).map((c) => c.slug);
     expect(new Set(slugs).size).toBe(slugs.length);
   });
 });

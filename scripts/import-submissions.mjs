@@ -89,7 +89,7 @@ async function importOne(slug) {
     tags: meta.tags,
     level: meta.level,
     estimatedMinutes: meta.estimatedMinutes,
-    learningPaths: meta.learningPaths ?? [],
+    collections: meta.collections ?? [],
     author: meta.author ?? 'DevOps Community',
     ...(meta.authorUrl ? { authorUrl: meta.authorUrl } : {}),
     version: meta.version ?? '1.0.0',

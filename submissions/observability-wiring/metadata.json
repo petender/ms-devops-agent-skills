@@ -20,7 +20,7 @@
   ],
   "level": "intermediate",
   "estimatedMinutes": 30,
-  "learningPaths": [
+  "collections": [
     "platform-engineer"
   ],
   "author": "DevOps Community",

@@ -19,7 +19,7 @@
   ],
   "level": "beginner",
   "estimatedMinutes": 20,
-  "learningPaths": [
+  "collections": [
     "new-to-cicd",
     "devsecops-starter"
   ],
