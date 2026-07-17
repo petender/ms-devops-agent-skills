@@ -25,6 +25,8 @@ One of the key design principles: **reuse existing SKILL.md files without modifi
 
 **No need to rewrite or duplicate skill logic** - the helper scripts handle the API integration while preserving your skill content.
 
+📚 **[Read the full Local-to-Pipeline workflow guide →](./LOCAL_TO_PIPELINE.md)**
+
 ## 🚀 Quick Start
 
 ### Prerequisites
