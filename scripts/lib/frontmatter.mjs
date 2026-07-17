@@ -1,8 +1,8 @@
 /**
  * Ultra-light YAML frontmatter parser.
  * Only supports: string scalars (bare/quoted), numbers, booleans, and
- * simple flow-style arrays like [a, b, c]. Enough for our SKILL.md,
- * copilot.instructions.md, and trainer.md needs.
+ * simple flow-style arrays like [a, b, c]. Enough for our SKILL.md and
+ * trainer.md needs.
  *
  * Also supports block-style lists (`- foo`) at indent 0 under a key, and
  * block-style maps for the exercises[] entries in trainer.md.

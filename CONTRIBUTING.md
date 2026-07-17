@@ -21,15 +21,14 @@ Then open a PR. CI runs `npm run validate && npm test && npm run build`.
 ```
 submissions/<slug>/
 ├── metadata.json           # required — catalog entry
-├── SKILL.md                # required — Claude format
-├── copilot.instructions.md # required — Copilot format
+├── SKILL.md                # required — the portable skill (Agent Skills open standard)
 ├── trainer.md              # recommended — lesson plan
 ├── assets/                 # optional — templates, sample YAML, etc.
 ├── scripts/                # optional — helper scripts (bash, pwsh, py)
 └── references/             # optional — linked reference docs
 ```
 
-The **slug** is the folder name. Use lowercase, digits, and hyphens.
+The **slug** is the folder name. Use lowercase, digits, and hyphens. The slug must match the `name` field in `SKILL.md`'s frontmatter.
 
 ### `metadata.json`
 
@@ -53,9 +52,9 @@ The **slug** is the folder name. Use lowercase, digits, and hyphens.
 
 Valid `category`: `ci`, `iac`, `container`, `k8s`, `security`, `obs`, `release`, `ir`, `finops`.
 Valid `level`: `beginner`, `intermediate`, `advanced`.
-Valid `platforms`: `Claude`, `GitHub Copilot`.
+Valid `platforms`: `GitHub Copilot`, `Claude`, `Copilot CLI`, `Copilot Cloud Agent`.
 
-### `SKILL.md` (Claude)
+### `SKILL.md` (the [Agent Skills open standard](https://agentskills.io/))
 
 ```markdown
 ---
@@ -68,24 +67,11 @@ description: Use this skill whenever the user asks to write, review, or refactor
 Agent-facing instructions in Markdown.
 ```
 
-The **frontmatter description is what Claude sees to decide when to invoke** — write it as a trigger sentence. The body is the instruction the agent follows.
+The **frontmatter `description` is what the agent sees to decide when to invoke** — write it as a trigger sentence. The body is the instruction the agent follows.
 
-Keep the body **under ~200 lines**. The validator warns above 300.
-
-### `copilot.instructions.md` (GitHub Copilot)
-
-```markdown
----
-description: Author idempotent, parameterized Bicep modules with @description, outputs, and a main.bicep composition example.
-applyTo: "**/*.bicep"
----
-
-# Body
-
-Same guidance as SKILL.md, phrased for Copilot.
-```
-
-`applyTo` is a glob controlling when Copilot auto-includes this instruction. Use `"**"` if the skill is invoked manually.
+- `name` must exactly match the slug (folder name).
+- Keep the body **under ~200 lines**. The validator warns above 300.
+- The same file is loaded natively by GitHub Copilot (VS Code, CLI, Cloud Agent), Claude, and any other client that speaks the Agent Skills spec — no per-agent copy needed.
 
 ### `trainer.md` (optional)
 
@@ -128,7 +114,7 @@ Populating `trainer.md` sets `hasTrainerNotes: true` and exposes the skill on th
 - [ ] `npm test` passes.
 - [ ] `npm run build` completes without warnings.
 - [ ] Skill body is under ~200 lines.
-- [ ] Both format files describe the *same* skill (drift is a bug).
+- [ ] `SKILL.md`'s frontmatter `name` matches the folder slug.
 - [ ] If the skill needs external tooling, list versions in `prerequisites`.
 
 ## Learning paths

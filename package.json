@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Community gallery of dual-format (Claude + Copilot) DevOps agent skills for trainers and learners.",
+  "description": "Community gallery of DevOps agent skills in the Agent Skills open standard — works with GitHub Copilot, Claude, and any compatible client.",
   "scripts": {
     "dev": "npm run import && astro dev",
     "build": "npm run validate && npm run import && astro build",
